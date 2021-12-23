@@ -1,0 +1,12 @@
+name = "TryTests"
+uuid = "18ac1dc4-3454-4077-bdbe-c46d281bdc32"
+authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
+version = "0.1.0-DEV"
+
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Try = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
+
+[compat]
+julia = "1.6"
