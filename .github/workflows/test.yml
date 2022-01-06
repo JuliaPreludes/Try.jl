@@ -36,7 +36,7 @@ jobs:
       - name: "Dump jobs' conclusion"
         run: |
           gh api repos/tkf/Try.jl/actions/runs/${{ github.run_id }}/jobs \
-            --jq '.jobs[] | { name, conclusion }'
+            --jq '.jobs[] | select(.conclusion != null) | { name, conclusion }'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -44,7 +44,7 @@ jobs:
         run: |
           num_non_successes="$(
             gh api repos/tkf/Try.jl/actions/runs/${{ github.run_id }}/jobs \
-              --jq '[.jobs[] | .conclusion | select(. != "success")] | length' \
+              --jq '[.jobs[] | select(.conclusion != null) | .conclusion | select(. != "success")] | length' \
           )"
 
           echo "num_non_successes = $num_non_successes"
