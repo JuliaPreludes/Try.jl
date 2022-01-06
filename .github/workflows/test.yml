@@ -35,7 +35,7 @@ jobs:
     steps:
       - name: "Dump jobs' conclusion"
         run: |
-          gh api repos/tkf/Schedulers.jl/actions/runs/${{ github.run_id }}/jobs \
+          gh api repos/tkf/Try.jl/actions/runs/${{ github.run_id }}/jobs \
             --jq '.jobs[] | { name, conclusion }'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,7 +43,7 @@ jobs:
       - name: "Check test matrix"
         run: |
           num_non_successes="$(
-            gh api repos/tkf/Schedulers.jl/actions/runs/${{ github.run_id }}/jobs \
+            gh api repos/tkf/Try.jl/actions/runs/${{ github.run_id }}/jobs \
               --jq '[.jobs[] | .conclusion | select(. != "success")] | length' \
           )"
 
