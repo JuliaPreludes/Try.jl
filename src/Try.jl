@@ -102,42 +102,6 @@ include("sugar.jl")
 
 end  # module Internal
 
-@function convert
-# @function promote
-
-# Collection interface
-@function length
-@function eltype
-
-@function getindex
-@function setindex!
-
-@function first
-@function last
-
-@function push!
-@function pushfirst!
-@function pop!
-@function popfirst!
-
-@function put!
-@function take!
-
-@function push_nowait!
-@function pushfirst_nowait!
-@function pop_nowait!
-@function popfirst_nowait!
-
-@function put_nowait!
-@function take_nowait!
-
-module Implementations
-using ..Try
-using ..Try: Causes
-using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
-include("base.jl")
-end  # module Implementations
-
 Internal.define_docstrings()
 
 end  # baremodule Try

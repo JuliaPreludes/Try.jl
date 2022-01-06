@@ -17,7 +17,7 @@ For more explanation, see [Discussion](#discussion) below.
 ### Basic usage
 
 ```julia
-julia> using Try
+julia> import TryExperimental as Try
 ```
 
 Try.jl-based API return either an `OK` value
@@ -63,7 +63,7 @@ Consider an example where an error "bubbles up" from a deep stack of function
 calls:
 
 ```JULIA
-julia> using Try
+julia> import TryExperimental as Try
 
 julia> f1(x) = x ? Ok(nothing) : Err(KeyError(:b));
 
@@ -128,7 +128,8 @@ example, `Try.eltype` and `Try.length` can be called on arbitrary objects (=
 for permission").
 
 ```julia
-using Try
+import TryExperimental as Try
+using .Try
 
 function try_map_prealloc(f, xs)
     T = Try.@return_err Try.eltype(xs)  # macro-based short-circuiting
@@ -173,16 +174,20 @@ return type of `Union{Ok,Err}`. Thus, the compiler can sometimes prove that
 success or failure paths can never be taken:
 
 ```julia
-julia> using Try, InteractiveUtils
+julia> import TryExperimental as Try
+
+julia> using .Try
+
+julia> using InteractiveUtils
 
 julia> @code_typed(Try.first((111, "two", :three)))[2]  # always succeeds for non empty tuples
-Ok{Int64}
+Try.Ok{Int64}
 
 julia> @code_typed(Try.first(()))[2]  # always fails for an empty tuple
-Err{BoundsError}
+Try.Err{BoundsError}
 
 julia> @code_typed(Try.first(Int[]))[2]  # both are possible for an array
-Union{Ok{Int64}, Err{BoundsError}}
+Union{Try.Ok{Int64}, Try.Err{BoundsError}}
 ```
 
 ### Constraining returnable errors
@@ -213,7 +218,8 @@ Here is an example of providing the call API `tryparse` with the overload API
 can return `InvalidCharError()` or `EndOfBufferError()` as an error value:
 
 ```julia
-using Try
+import TryExperimental as Try
+using .Try
 
 struct InvalidCharError <: Exception end
 struct EndOfBufferError <: Exception end

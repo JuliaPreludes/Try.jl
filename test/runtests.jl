@@ -1,2 +1,2 @@
 using TestFunctionRunner
-TestFunctionRunner.@run
+TestFunctionRunner.@run(paths = ["../lib/TryExperimental"])

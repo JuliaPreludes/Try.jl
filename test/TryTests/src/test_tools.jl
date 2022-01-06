@@ -1,7 +1,10 @@
 module TestTools
 
 using Test
-using Try
+
+import TryExperimental
+const Try = TryExperimental
+using .Try
 
 function test_curry()
     value =
