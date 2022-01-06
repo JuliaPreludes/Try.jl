@@ -17,9 +17,11 @@ end
 
 const DynamicResult{T,E} = Union{Ok{T},Err{E}}
 
+function _ConcreteResult end
+
 struct ConcreteResult{T,E<:Exception} <: AbstractResult{T,E}
     value::DynamicResult{T,E}
-    ConcreteResult{T,E}(value::DynamicResult{T,E}) where {T,E<:Exception} = new{T,E}(value)
+    global _ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} = new{T,E}(value)
 end
 
 const ConcreteOk{T} = ConcreteResult{T,Union{}}
@@ -83,7 +85,8 @@ using ..Try:
     Err,
     Ok,
     Result,
-    Try
+    Try,
+    _ConcreteResult
 
 using Base.Meta: isexpr
 

@@ -23,26 +23,36 @@ end
 Base.convert(::Type{Ok{T}}, ok::Ok) where {T} = Ok{T}(ok.value)
 Base.convert(::Type{Err{E}}, err::Err) where {E} = Err{E}(err.value)
 
+_concrete(result::Ok) = _ConcreteResult(Try.oktype(result), Union{}, result)
+_concrete(result::Err) = _ConcreteResult(Union{}, Try.errtype(result), result)
+
+Try.ConcreteOk(value) = _concrete(Ok(value))
+Try.ConcreteOk{T}(value) where {T} = _concrete(Ok{T}(value))
+Try.ConcreteErr(value) = _concrete(Err(value))
+Try.ConcreteErr{E}(value) where {E} = _concrete(Err{E}(value))
+
+Base.convert(::Type{ConcreteResult{T,E}}, result::Ok) where {T,E} =
+    _ConcreteResult(T, E, convert(Ok{T}, result))
+Base.convert(::Type{ConcreteResult{T}}, result::Ok) where {T} =
+    _ConcreteResult(T, Union{}, convert(Ok{T}, result))
+
+Base.convert(::Type{ConcreteResult{T,E}}, result::Err) where {T,E} =
+    _ConcreteResult(T, E, convert(Err{E}, result))
+Base.convert(::Type{ConcreteResult{<:Any,E}}, result::Err) where {E} =
+    _ConcreteResult(Union{}, E, convert(Err{E}, result))
+
 function Base.convert(
     ::Type{ConcreteResult{T,E}},
     result::ConcreteResult{T′,E′},
 ) where {T,E,T′<:T,E′<:E}
     value = result.value
     if value isa Ok
-        return ConcreteResult{T,E}(Ok{T}(value.value))
+        return _ConcreteResult(T, E, Ok{T}(value.value))
     else
-        return ConcreteResult{T,E}(Err{E}(value.value))
+        return _ConcreteResult(T, E, Err{E}(value.value))
     end
 end
 
-Base.convert(::Type{ConcreteResult{T,E}}, result::ConcreteOk) where {T,E} =
-    ConcreteResult{T,E}(convert(Ok{T}, value.value))
-
-Base.convert(::Type{ConcreteResult{T,E}}, result::ConcreteErr) where {T,E} =
-    ConcreteResult{T,E}(convert(Err{E}, value.value))
-
-Try.ConcreteOk{T}(value) where {T} = Try.ConcreteOk{T}(Ok{T}(value))
-Try.ConcreteErr{E}(value) where {E} = Try.ConcreteErr{E}(Err{E}(value))
 Try.oktype(::Type{R}) where {T,R<:AbstractResult{T}} = T
 Try.oktype(result::AbstractResult) = Try.oktype(typeof(result))
 
