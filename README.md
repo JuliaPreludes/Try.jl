@@ -95,7 +95,12 @@ Try.jl exposes a limited set of "verbs" based on Julia `Base` such as
 an error value `Err{NotImplementedError}`.  This let us use these functions in
 the ["Easier to ask for forgiveness than permission"
 (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) manner because they
-can be called without getting the run-time `MethodError` exception.  Such
-functions can be defined using `Try.@function f` instead of `function f end`.
-They are defined as instances of `Tryable <: Function` and not as a direct
-instance of `Function`.
+can be called without getting the run-time `MethodError` exception.
+Importantly, *the EAFP approach does not have the problem of the trait-based
+feature detection* where the implementer must ensure that declared trait (e.g.,
+`HasLength`) is compatible with the actual definition (e.g., `length`).  With
+the EAFP approach, the feature is enabled simply by defining the method
+providing the function (e.g., `Try.length`).  (Implementation details: In
+Try.jl, such "EAFP-compatible" functions are declared using `Try.@function f`
+instead of `function f end`.  They are defined as instances of `Tryable <:
+Function` and not as a direct instance of `Function`.)
