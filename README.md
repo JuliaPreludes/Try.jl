@@ -10,31 +10,52 @@ Features:
   (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) approach as a
   robust and minimalistic alternative to the trait-based feature detection.
 
+For more explanation, see [Discussion](#discussion) below.
+
 ## Examples
 
 ### Basic usage
 
 ```julia
 julia> using Try
+```
 
-julia> result = Try.getindex(Dict(:a => 111), :a)
+Try.jl-based API return either an `OK` value
+
+```julia
+julia> ok = Try.getindex(Dict(:a => 111), :a)
 Try.Ok: 111
+```
 
-julia> Try.isok(result)
+or an `Err` value:
+
+```julia
+julia> err = Try.getindex(Dict(:a => 111), :b)
+Try.Err: KeyError: key :b not found
+```
+
+Together, these values are called *result* values.  Try.jl provides various
+tools to deal with the result values such as predicate functions:
+
+```julia
+julia> Try.isok(ok)
 true
 
-julia> Try.unwrap(result)
+julia> Try.iserr(err)
+true
+```
+
+unwrapping function:
+
+```julia
+julia> Try.unwrap(ok)
 111
 
-julia> result = Try.getindex(Dict(:a => 111), :b)
-Try.Err: KeyError: key :b not found
-
-julia> Try.iserr(result)
-true
-
-julia> Try.unwrap_err(result)
+julia> Try.unwrap_err(err)
 KeyError(:b)
 ```
+
+and more.
 
 ### Error trace
 
@@ -100,11 +121,17 @@ been already started.
 
 ### EAFP
 
+As explained in [EAFP and traits](#eafp-and-traits) below, the `Base`-like API
+defined in `Try` namespace does not throw when the method is not defined.  For
+example, `Try.eltype` and `Try.length` can be called on arbitrary objects (=
+"asking for forgiveness") without checking if the method is defined (= "asking
+for permission").
+
 ```julia
 using Try
 
 function try_map_prealloc(f, xs)
-    T = Try.@return_err Try.eltype(xs)
+    T = Try.@return_err Try.eltype(xs)  # macro-based short-circuiting
     n = Try.@return_err Try.length(xs)
     ys = Vector{T}(undef, n)
     for (i, x) in zip(eachindex(ys), xs)
@@ -115,7 +142,7 @@ end
 
 mymap(f, xs) =
     try_map_prealloc(f, xs) |>
-    Try.or_else() do _
+    Try.or_else() do _  # functional composition
         Ok(mapfoldl(f, push!, xs; init = []))
     end |>
     Try.unwrap
@@ -220,3 +247,34 @@ interface.
 with `Try.@function f` instead of `function f end`.  It is defined as an
 instance of a subtype of `Tryable <: Function` and not as an instance of a
 "direct" subtype of `Function`.)
+
+### When to `throw`? When to `return`?
+
+Having two modes of error reporting (i.e., `throw`ing an exception and 
+`return`ing an `Err` value) introduces a complexity that must be justified.  Is
+Try.jl just a workaround until the compiler can optimize `try`-`catch`?   ("Yes"
+may be a reasonable answer.)  Or is there a principled way to distinguish the
+use cases of them?  (This is what is explored here.)
+
+Reporting error by `return`ing an `Err` value is particularly useful when an
+error handling occurs in a tight loop.  For example, when composing concurrent
+data structure APIs, it is sometimes required to know the failure mode (e.g.,
+logical vs temporary/contention failures) in a tight loop. It is likely that
+Julia compiler can compile this down to a simple flag-based low-level code or a
+state machine. Note that this style of programming requires a clear definition
+of the API noting on what conditions certain errors are reported. That is to
+say, the API ensures the detection of unsatisfied pre-conditions and it is
+likely that the caller have some ways to recover from the error.
+
+In contrast, if there is no way for the caller *program* to recover from the
+error and the error should be reported to a *human*, `throw`ing an exception is
+more appropriate.  For example, if an inconsistency of the internal state of a
+data structure is detected, it is likely a bug in the usage or implementation.
+In this case, there is no way for the caller program to recover from such an
+out-of-contract error and only the human programmer can take an action.  To
+support typical interactive workflow in Julia, printing an error and aborting
+the whole program is not an option.  Thus, it is crucial that it is possible to
+recover even from an out-of-contract error in Julia.  Such a language construct
+is required for building programming tools such as REPL and editor plugins can
+use it.  In summary, `return`-based error reporting is adequate for recoverable
+errors and `throw`-based error reporting is adequate for unrecoverable errors.
