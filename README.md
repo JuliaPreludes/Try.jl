@@ -17,7 +17,8 @@ Features:
 ```julia
 julia> using Try
 
-julia> result = Try.getindex(Dict(:a => 111), :a);
+julia> result = Try.getindex(Dict(:a => 111), :a)
+Try.Ok: 111
 
 julia> Try.isok(result)
 true
@@ -25,7 +26,8 @@ true
 julia> Try.unwrap(result)
 111
 
-julia> result = Try.getindex(Dict(:a => 111), :b);
+julia> result = Try.getindex(Dict(:a => 111), :b)
+Try.Err: KeyError: key :b not found
 
 julia> Try.iserr(result)
 true
@@ -79,8 +81,30 @@ mymap(x -> x + 1, (x for x in 1:5 if isodd(x)))
 
 Try.jl provides an API inspired by Rust's `Result` type.  However, to fully
 unlock the power of Julia, Try.jl uses the *small `Union` types* instead of a
-concretely typed sum type.  Furthermore, it optionally supports concretely-typed
-returned value when `Union` is not appropriate.
+concretely typed `struct` type.  This is essential for idiomatic clean
+high-level Julia code that avoids computing output type manually.  However, all
+previous attempts in this space (such as
+[ErrorTypes.jl](https://github.com/jakobnissen/ErrorTypes.jl),
+[ResultTypes.jl](https://github.com/iamed2/ResultTypes.jl), and
+[Expect.jl](https://github.com/KristofferC/Expect.jl)) use a `struct` type for
+representing the result value (see
+[`ErrorTypes.Result`](https://github.com/jakobnissen/ErrorTypes.jl/blob/c3a7d529716ebfa3ee956049f77f606b6c00700b/src/ErrorTypes.jl#L45-L47),
+[`ResultTypes.Result`](https://github.com/iamed2/ResultTypes.jl/blob/42ebadf4d859964efa36ebccbeed3d5b65f3e9d9/src/ResultTypes.jl#L5-L8),
+and
+[`Expect.Expected`](https://github.com/KristofferC/Expect.jl/blob/6834049306c2b53c1666cbed504655e36b56e3b4/src/Expect.jl#L6-L9)).
+Using a concretely typed `struct` as returned type has some benefits in that it
+is easy to control the result of type inference.  However, this is at the cost
+of losing the opportunity for the compiler to eliminate the success and/or
+failure branches.  A similar optimization can happen in principle with the
+concrete `struct` approach with some aggressive (post-inference) inlining,
+scalar replacement of aggregate, and dead code elimination.  However, since type
+inference is the main driving force in the inter-procedural analysis of the
+Julia compiler, `Union` return type is likely to continue to be the most
+effective way to communicate the intent of the code with the compiler (e.g., if
+a function call always succeeds, return an `Ok{T}`).  (That said, Try.jl also
+contains supports for concretely-typed returned value when `Union` is not
+appropriate. This is for experimenting if such a manual "type-stabilization" is
+a viable approach and if providing a seamless interop API is possible.)
 
 A potential usability issue for using the `Result` type is that the detailed
 context of the error is lost by the time the user received an error.  This makes

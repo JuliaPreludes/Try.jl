@@ -37,6 +37,12 @@ end
     return Ok(v)
 end
 
+@inline function Try.getindex(xs::Tuple, i::Integer):: Result
+    i < 1 && return Err(BoundsError(xs, i))
+    i > length(xs) && return Err(BoundsError(xs, i))
+    return Ok(xs[i])
+end
+
 struct NotFound end
 
 function Try.getindex(dict::AbstractDict, key)::Result
