@@ -12,6 +12,6 @@ function Base.show(io::IO, ::MIME"text/plain", err::Err)
     if backtrace === nothing
         showerror(io, ex)
     else
-        showerror(io, ex, err.backtrace)
+        showerror(io, ex, simplify_backtrace(err.backtrace))
     end
 end

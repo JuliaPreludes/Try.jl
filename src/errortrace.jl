@@ -19,6 +19,58 @@ end
 
 maybe_backtrace() = include_backtrace() ? backtrace() : nothing
 
+function common_suffix(bt, here = backtrace())
+    a = lastindex(bt)
+    b = lastindex(here)
+    while true
+        a < firstindex(bt) && return a  # unreachable?
+        b < firstindex(bt) && break
+        bt[a] != here[b] && break
+        a -= 1
+        b -= 1
+    end
+    return a
+end
+
+function simplify_backtrace_impl(bt)
+    a = common_suffix(bt)
+    no_common_suffix = a == lastindex(bt)
+    bt = Base.process_backtrace(bt[1:a])
+
+    j = lastindex(bt)
+    if no_common_suffix
+        # No common suffix. Evaluated in REPL's display?
+        fr, = bt[end]
+        if fr.func === :_start && basename(string(fr.file)) == "client.jl"
+            j = findlast(((fr, _),) -> !fr.from_c && fr.func === :eval, bt)
+            j = max(firstindex(bt), j - 1)
+        end
+    end
+
+    i = firstindex(bt)
+    if bt[i][1].func === :maybe_backtrace
+        i += 1
+    end
+    if bt[i][1].func === :Err
+        i += 1
+    end
+
+    return bt[i:j]
+end
+
+function simplify_backtrace(bt)
+    try
+        return simplify_backtrace_impl(bt)
+    catch err
+        @error(
+            "Fail to simplify backtrace. Fallback to plain backtrace.",
+            exception = (err, catch_backtrace()),
+            maxlog = 5,
+        )
+        return bt
+    end
+end
+
 struct ErrorTrace <: Exception
     exception::Exception
     backtrace::typeof(Base.backtrace())
@@ -31,7 +83,7 @@ function Base.showerror(io::IO, errtrace::ErrorTrace)
 
     # TODO: remove common prefix?
     buffer = IOBuffer()
-    Base.show_backtrace(IOContext(buffer, io), errtrace.backtrace)
+    Base.show_backtrace(IOContext(buffer, io), simplify_backtrace(errtrace.backtrace))
     seekstart(buffer)
     println(io, "┌ Original: stacktrace")
     for ln in eachline(buffer)
