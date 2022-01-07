@@ -141,6 +141,18 @@ mymap(x -> x + 1, (x for x in 1:5 if isodd(x)))
 
 ## Discussion
 
+Julia is a dynamic language with a compiler that can aggressively optimize away
+the dynamism to get the performance comparable static languages.  As such, many
+successful features of Julia provide the usability of a dynamic language while
+paying attentions to the optimizability of the composed code.  However, native
+`throw`/`catch`-based exception is not optimized aggressively and existing
+"static" solutions do not support idiomatic high-level style of programming.
+Try.jl explores [an alternative solution](https://xkcd.com/927/) embracing the
+dynamism of Julia while restricting the underlying code as much as possible to
+the form that the compiler can optimize away.
+
+### Dynamic returned value types for maximizing optimizability
+
 Try.jl provides an API inspired by Rust's `Result` type.  However, to fully
 unlock the power of Julia, Try.jl uses the *small `Union` types* instead of a
 concretely typed `struct` type.  This is essential for idiomatic clean
@@ -155,26 +167,36 @@ representing the result value (see
 and
 [`Expect.Expected`](https://github.com/KristofferC/Expect.jl/blob/6834049306c2b53c1666cbed504655e36b56e3b4/src/Expect.jl#L6-L9)).
 Using a concretely typed `struct` as returned type has some benefits in that it
-is easy to control the result of type inference.  However, this is at the cost
-of losing the opportunity for the compiler to eliminate the success and/or
-failure branches.  A similar optimization can happen in principle with the
-concrete `struct` approach with some aggressive (post-inference) inlining,
-scalar replacement of aggregate, and dead code elimination.  However, since type
-inference is the main driving force in the inter-procedural analysis of the
-Julia compiler, `Union` return type is likely to continue to be the most
-effective way to communicate the intent of the code with the compiler (e.g., if
-a function call always succeeds, return an `Ok{T}`).  (That said, Try.jl also
-contains supports for concretely-typed returned value when `Union` is not
-appropriate. This is for experimenting if such a manual "type-stabilization" is
-a viable approach and if providing a seamless interop API is possible.)
+is easy to control the result of type inference.  However, this forces the user
+to manually compute the type of the untaken paths.  This is tedious and
+sometimes simply impossible.  This is also not idiomatic Julia code which
+typically delegates output type computation to the compiler.  Futhermore, the
+benefit of type-stabilization is at the cost of loosing the opportunity for the
+compiler to eliminate the success and/or failure branches.  A similar
+optimization can still happen in principle with the concrete `struct` approach
+with the combination of (post-inference) inlining, scalar replacement of
+aggregate, and dead code elimination.  However, since type inference is the main
+driving force in the inter-procedural analysis and optimization in the Julia
+compiler, `Union` return type is likely to continue to be the most effective way
+to communicate the intent of the code with the compiler (e.g., if a function
+call always succeeds, always return an `Ok{T}`).
+
+(That said, Try.jl also contains supports for concretely-typed returned value
+when `Union` is not appropriate. This is for experimenting if such a manual
+"type-instability-hiding" is a viable approach at a large scale and if providing
+a uniform API is possible.)
+
+### Debuggable error handling
 
 A potential usability issue for using the `Result` type is that the detailed
 context of the error is lost by the time the user received an error.  This makes
 debugging Julia programs hard compared to simply `throw`ing the exception.  To
-solve this problem, Try.jl provides an *error trace* mechanism for recording the
-backtrace of the error.  This can be toggled using `Try.enable_errortrace()` at
-the run-time.  This is inspired by Zig's [Error Return
+mitigate this problem, Try.jl provides an *error trace* mechanism for recording
+the backtrace of the error.  This can be toggled using `Try.enable_errortrace()`
+at the run-time.  This is inspired by Zig's [Error Return
 Traces](https://ziglang.org/documentation/master/#Error-Return-Traces).
+
+### EAFP and traits
 
 Try.jl exposes a limited set of "verbs" based on Julia `Base` such as
 `Try.take!`.  These functions have a catch-all default definition that returns
