@@ -178,15 +178,23 @@ Traces](https://ziglang.org/documentation/master/#Error-Return-Traces).
 
 Try.jl exposes a limited set of "verbs" based on Julia `Base` such as
 `Try.take!`.  These functions have a catch-all default definition that returns
-an error value `Err{NotImplementedError}`.  This let us use these functions in
-the ["Easier to ask for forgiveness than permission"
+an error value of type `Err{NotImplementedError}`.  This let us use these
+functions in the ["Easier to ask for forgiveness than permission"
 (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) manner because they
 can be called without getting the run-time `MethodError` exception.
-Importantly, *the EAFP approach does not have the problem of the trait-based
-feature detection* where the implementer must ensure that declared trait (e.g.,
+Importantly, the EAFP approach does not have the problem of the trait-based
+feature detection where the implementer must ensure that declared trait (e.g.,
 `HasLength`) is compatible with the actual definition (e.g., `length`).  With
-the EAFP approach, the feature is enabled simply by defining the method
-providing the function (e.g., `Try.length`).  (Implementation details: In
-Try.jl, such "EAFP-compatible" functions are declared using `Try.@function f`
-instead of `function f end`.  They are defined as instances of `Tryable <:
-Function` and not as a direct instance of `Function`.)
+the EAFP approach, *the feature is declared automatically by defining of the
+method providing it* (e.g., `Try.length`).  Thus, by construction, it is hard to
+make the feature declaration and definition out-of-sync.  Of course, this
+approach works only for effect-free or "redo-able" functions.  To check if a
+sequence of destructive operations is possible, the trait-based approach is
+perhaps unavoidable.  Therefore, these approaches are complementary.  The
+EAFP-based strategy is useful for reducing the complexity of library extension
+interface.
+
+(Implementation details: In Try.jl, each "EAFP-compatible" function is declared
+with `Try.@function f` instead of `function f end`.  It is defined as an
+instance of a subtype of `Tryable <: Function` and not as an instance of a
+"direct" subtype of `Function`.)
