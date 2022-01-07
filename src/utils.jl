@@ -12,6 +12,7 @@ function define_docstrings()
         include_dependency(path)
         doc = read(path, String)
         doc = replace(doc, r"^```julia"m => "```jldoctest $name")
+        doc = replace(doc, r"^```JULIA"m => "```julia-repl")
         doc = replace(doc, "<kbd>TAB</kbd>" => "_TAB_")
         @eval Try $Base.@doc $doc $name
     end

@@ -36,6 +36,68 @@ julia> Try.unwrap_err(result)
 KeyError(:b)
 ```
 
+### Error trace
+
+Consider an example where an error "bubbles up" from a deep stack of function
+call:
+
+```JULIA
+julia> using Try
+
+julia> f1(x) = x ? Ok(nothing) : Err(KeyError(:b));
+
+julia> f2(x) = f1(x);
+
+julia> f3(x) = f2(x);
+```
+
+Since Try.jl represents an error as simple Julia value, there is no information
+on the source this error:
+
+```JULIA
+julia> f3(false)
+Try.Err: KeyError: key :b not found
+```
+
+We can enable the stacktrace recording of the error by calling 
+`Try.enable_errortrace()`.
+
+```JULIA
+julia> Try.enable_errortrace();
+
+julia> y = f3(false)
+Try.Err: KeyError: key :b not found
+Stacktrace:
+ [1] f1
+   @ ./REPL[2]:1 [inlined]
+ [2] f2
+   @ ./REPL[3]:1 [inlined]
+ [3] f3(x::Bool)
+   @ Main ./REPL[4]:1
+ [4] top-level scope
+   @ REPL[7]:1
+
+julia> Try.disable_errortrace();
+```
+
+Note that `f3` didn't throw an exception. It returned a value of type `Err`:
+
+```JULIA
+julia> Try.iserr(y)
+true
+
+julia> Try.unwrap_err(y)
+KeyError(:b)
+```
+
+That is to say, the stacktrace is simply attached as "metadata" and
+`Try.enable_errortrace()` does not alter how `Err` values behave.
+
+Limitation/implementation details: To eliminate the cost of stacktrace capturing
+when it is not used, `Try.enable_errortrace()` is implemented using method
+invalidation. Thus, error trace cannot be enabled for `Task`s that have been
+already started.
+
 ### EAFP
 
 ```julia
