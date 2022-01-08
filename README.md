@@ -185,6 +185,77 @@ julia> @code_typed(Try.first(Int[]))[2]  # both are possible for an array
 Union{Ok{Int64}, Err{BoundsError}}
 ```
 
+### Constraining returnable errors
+
+We can use the return type conversion `function f(...)::ReturnType ...  end` to
+constrain possible error types. This is similar to the `throws` keyword in Java.
+
+This can be used for ensuring that only the expected set of errors are returned
+from Try.jl-based functions.  In particular, it may be useful for restricting
+possible errors at an API boundary.  The idea is to separate "call API" `f` from
+"overload API" `__f__` such that new methods are added to `__f__` and not to
+`f`.  We can then wrap the overload API function by the call API function that
+simply declare the return type:
+
+```Julia
+f(args...)::Result{Any,PossibleErrors} = __f__(args...)
+```
+
+(Using type assertion as in `__f__(args...)::Result{Any,PossibleErrors}` also
+works in this case.)
+
+Then, the API specification of `f` can include the overloading instruction
+explaining that method of `__f__` should be defined and enumerate allowed set of
+errors.
+
+Here is an example of providing the call API `tryparse` with the overload API
+`__tryparse__` wrapping `Base.tryparase`.  In this toy example, `__tryparse__`
+can return `InvalidCharError()` or `EndOfBufferError()` as an error value:
+
+```julia
+using Try
+
+struct InvalidCharError <: Exception end
+struct EndOfBufferError <: Exception end
+
+const ParseError = Union{InvalidCharError, EndOfBufferError}
+
+tryparse(T, str)::Result{T,ParseError} = __tryparse__(T, str)
+
+function __tryparse__(::Type{Int}, str::AbstractString)
+    isempty(str) && return Err(EndOfBufferError())
+    Ok(@something(Base.tryparse(Int, str), return Err(InvalidCharError())))
+end
+
+tryparse(Int, "111")
+
+# output
+Try.Ok: 111
+```
+
+```julia
+tryparse(Int, "")
+
+# output
+Try.Err: EndOfBufferError()
+```
+
+```julia
+tryparse(Int, "one")
+
+# output
+Try.Err: InvalidCharError()
+```
+
+Constraining errors can be useful for generic programming if it is desirable to
+ensure that error handling is complete.  This pattern makes it easy to *report
+invalid errors directly to the programmer* (see [When to `throw`? When to
+`return`?](#when-to-throw-when-to-return)) while correctly implemented methods
+do not incur any run-time overheads.
+
+See also:
+[julep: "chain of custody" error handling · Issue #7026 · JuliaLang/julia](https://github.com/JuliaLang/julia/issues/7026)
+
 ## Discussion
 
 Julia is a dynamic language with a compiler that can aggressively optimize away
@@ -297,4 +368,5 @@ the whole program is not an option.  Thus, it is crucial that it is possible to
 recover even from an out-of-contract error in Julia.  Such a language construct
 is required for building programming tools such as REPL and editor plugins can
 use it.  In summary, `return`-based error reporting is adequate for recoverable
-errors and `throw`-based error reporting is adequate for unrecoverable errors.
+errors and `throw`-based error reporting is adequate for unrecoverable (i.e.,
+programmer's) errors.

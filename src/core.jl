@@ -22,6 +22,10 @@ end
 
 Base.convert(::Type{Ok{T}}, ok::Ok) where {T} = Ok{T}(ok.value)
 Base.convert(::Type{Err{E}}, err::Err) where {E} = Err{E}(err.value)
+# An interesting approach may be to simply throw the `err.value` if it is not a
+# subtype of `E`.  It makes the error value propagation pretty close to the
+# chain-of-custody Julep.  Maybe this should be done only when the destination
+# type is `AbstractResult{<:Any,E′}` s.t. `!(err.value isa E′)`.
 
 _concrete(result::Ok) = _ConcreteResult(Try.oktype(result), Union{}, result)
 _concrete(result::Err) = _ConcreteResult(Union{}, Try.errtype(result), result)
