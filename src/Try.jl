@@ -27,7 +27,7 @@ end
 const ConcreteOk{T} = ConcreteResult{T,Union{}}
 const ConcreteErr{E<:Exception} = ConcreteResult{Union{},E}
 
-const Result{T,E} = Union{ConcreteResult{T,E},DynamicResult{T,E}}
+const Result{T,E} = Union{ConcreteResult{<:T,<:E},DynamicResult{<:T,<:E}}
 
 function throw end
 
