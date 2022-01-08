@@ -166,6 +166,25 @@ mymap(x -> x + 1, (x for x in 1:5 if isodd(x)))
  6
 ```
 
+### Success/failure path elimination
+
+Function using Try.jl for error handling (such as `Try.first`) typically has a
+return type of `Union{Ok,Err}`. Thus, the compiler can sometimes prove that
+success or failure paths can never be taken:
+
+```julia
+julia> using Try, InteractiveUtils
+
+julia> @code_typed(Try.first((111, "two", :three)))[2]  # always succeeds for non empty tuples
+Ok{Int64}
+
+julia> @code_typed(Try.first(()))[2]  # always fails for an empty tuple
+Err{BoundsError}
+
+julia> @code_typed(Try.first(Int[]))[2]  # both are possible for an array
+Union{Ok{Int64}, Err{BoundsError}}
+```
+
 ## Discussion
 
 Julia is a dynamic language with a compiler that can aggressively optimize away
@@ -199,7 +218,8 @@ to manually compute the type of the untaken paths.  This is tedious and
 sometimes simply impossible.  This is also not idiomatic Julia code which
 typically delegates output type computation to the compiler.  Futhermore, the
 benefit of type-stabilization is at the cost of loosing the opportunity for the
-compiler to eliminate the success and/or failure branches.  A similar
+compiler to eliminate the success and/or failure branches (see [Success/failure
+path elimination](#successfailure-path-elimination) above).  A similar
 optimization can still happen in principle with the concrete `struct` approach
 with the combination of (post-inference) inlining, scalar replacement of
 aggregate, and dead code elimination.  However, since type inference is the main
