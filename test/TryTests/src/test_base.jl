@@ -35,4 +35,18 @@ function test_getindex()
     @test Try.unwrap_err(Try.getindex(Dict(:a => 111), :b)) isa KeyError
 end
 
+function test_first()
+    @test Try.unwrap(Try.first([111, 222, 333])) === 111
+    @test Try.unwrap(Try.first((111, 222, 333))) === 111
+    @test Try.iserr(Try.first([]))
+    @test Try.iserr(Try.first(()))
+end
+
+function test_last()
+    @test Try.unwrap(Try.last([111, 222, 333])) === 333
+    @test Try.unwrap(Try.last((111, 222, 333))) === 333
+    @test Try.iserr(Try.last([]))
+    @test Try.iserr(Try.last(()))
+end
+
 end  # module
