@@ -60,6 +60,9 @@ Try.getindex(dict::AbstractDict, k1, k2, ks...) = Try.getindex(dict, (k1, k2, ks
 Try.setindex!(dict::AbstractDict, v, k1, k2, ks...) =
     Try.setindex!(dict, v, (k1, k2, ks...))
 
+Try.first(xs) = Try.getindex(xs, 1)
+Try.last(xs) = Try.getindex(xs, lastindex(xs))
+
 Try.pop!(a::Vector)::Result = isempty(a) ? Causes.empty(a) : Ok(pop!(a))
 Try.popfirst!(a::Vector)::Result = isempty(a) ? Causes.empty(a) : Ok(popfirst!(a))
 

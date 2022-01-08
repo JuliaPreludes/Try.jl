@@ -112,6 +112,9 @@ end  # module Internal
 @function getindex
 @function setindex!
 
+@function first
+@function last
+
 @function push!
 @function pushfirst!
 @function pop!
