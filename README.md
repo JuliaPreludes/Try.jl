@@ -339,6 +339,38 @@ with `Try.@function f` instead of `function f end`.  It is defined as an
 instance of a subtype of `Tryable <: Function` and not as an instance of a
 "direct" subtype of `Function`.)
 
+#### Side notes on `hasmethod` and `applicable` (and `invoke`)
+
+Note that the EAFP approach using Try.jl is not equivalent to the ["Look before
+you leap" (LBYL)](https://docs.python.org/3/glossary.html#term-LBYL) counterpart
+using `hasmethod` and/or `applicable`.  That is to say, checking `applicable(f,
+x)` before calling `f(x)` may look attractive as it can be done without any
+building blocks.  However, this LBYL approach is fundamentally unusable for
+generic feature detection.  This is because `hasmethod` and `applicable` cannot
+handle "blanket definition" with "internal dispatch" like this:
+
+```julia
+julia> f(x::Real) = f_impl(x);  # blanket definition
+
+julia> f_impl(x::Int) = x + 1;  # internal dispatch
+
+julia> applicable(f, 0.1)
+true
+
+julia> hasmethod(f, Tuple{Float64})
+true
+```
+
+Notice that `f(0.1)` is considered callable if we trust `applicable` or
+`hasmethod` even though `f(0.1)` will throw a `MethodError`.  Thus, unless the
+overload instruction of `f` specifically forbids the blanket definition like
+above, the result of `applicable` and `hasmethod` cannot be trusted.  (For
+exactly the same reason, the use of `invoke` on library functions is
+problematic.)
+
+The EAFP approach works because the actual code path "dynamically declares" the
+feature.
+
 ### When to `throw`? When to `return`?
 
 Having two modes of error reporting (i.e., `throw`ing an exception and 
