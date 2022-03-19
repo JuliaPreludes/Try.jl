@@ -4,13 +4,13 @@ export Ok, Err, Result
 
 using Base: Base, Exception
 
-abstract type AbstractResult{T,E<:Exception} end
+abstract type AbstractResult{T,E} end
 
 struct Ok{T} <: AbstractResult{T,Union{}}
     value::T
 end
 
-struct Err{E<:Exception} <: AbstractResult{Union{},E}
+struct Err{E} <: AbstractResult{Union{},E}
     value::E
     backtrace::Union{Nothing,typeof(Base.backtrace())}
 end
@@ -19,13 +19,13 @@ const DynamicResult{T,E} = Union{Ok{T},Err{E}}
 
 function _ConcreteResult end
 
-struct ConcreteResult{T,E<:Exception} <: AbstractResult{T,E}
+struct ConcreteResult{T,E} <: AbstractResult{T,E}
     value::DynamicResult{T,E}
     global _ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} = new{T,E}(value)
 end
 
 const ConcreteOk{T} = ConcreteResult{T,Union{}}
-const ConcreteErr{E<:Exception} = ConcreteResult{Union{},E}
+const ConcreteErr{E} = ConcreteResult{Union{},E}
 
 const Result{T,E} = Union{ConcreteResult{<:T,<:E},DynamicResult{<:T,<:E}}
 
