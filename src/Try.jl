@@ -34,8 +34,6 @@ function throw end
 function unwrap end
 function unwrap_err end
 
-function ok end
-function err end
 function oktype end
 function errtype end
 function isok end
