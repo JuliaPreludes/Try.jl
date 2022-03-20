@@ -1,0 +1,28 @@
+name: Code style
+
+on:
+  pull_request:
+
+jobs:
+  JuliaFormatter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: 1
+      - name: Install dependencies
+        run: |
+          using Pkg
+          Pkg.add("JuliaFormatter")
+        shell: julia --color=yes {0}
+      - name: Format Julia files
+        run: |
+          using JuliaFormatter
+          format(".")
+        shell: julia --color=yes --compile=min -O0 {0}
+      - name: suggester / JuliaFormatter
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: JuliaFormatter
+          fail_on_error: true
