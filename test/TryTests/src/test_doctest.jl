@@ -1,11 +1,15 @@
 module TestDoctest
 
 using Documenter
-using Test
 using Try
+using TryExperimental
 
-function test()
+function test_try()
     doctest(Try; manual = false)
+end
+
+function test_tryexperimental()
+    doctest(TryExperimental; manual = false)
 end
 
 end  # module

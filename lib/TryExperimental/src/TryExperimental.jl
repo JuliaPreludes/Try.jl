@@ -1,5 +1,7 @@
 baremodule TryExperimental
 
+import Try
+
 module InternalPrelude
 include("prelude.jl")
 end  # module InternalPrelude
@@ -24,6 +26,12 @@ InternalPrelude.@exported_function trypopfirst!
 
 InternalPrelude.@exported_function tryput!
 InternalPrelude.@exported_function trytake!
+
+const Break = Try.Internal.Break
+const Continue = Try.Internal.Continue
+const branch = Try.Internal.branch
+const resultof = Try.Internal.resultof
+const valueof = Try.Internal.valueof
 
 # Basic exceptions
 abstract type EmptyError <: Exception end
@@ -63,5 +71,7 @@ using ..Maybe
 include("maybe.jl")
 end
 end  # module Maybe
+
+Internal.Try.Internal.@define_docstrings
 
 end  # baremodule TryExperimental
