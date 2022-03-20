@@ -44,7 +44,7 @@ function iserr end
 function enable_errortrace end
 function disable_errortrace end
 
-abstract type Tryable <: Function end
+function istryable end
 
 # Core exceptions
 struct IsOkError <: Exception

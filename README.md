@@ -340,10 +340,9 @@ perhaps unavoidable.  Therefore, these approaches are complementary.  The
 EAFP-based strategy is useful for reducing the complexity of library extension
 interface.
 
-(Implementation details: In Try.jl, each "EAFP-compatible" function is declared
-with `Try.@function f` instead of `function f end`.  It is defined as an
-instance of a subtype of `Tryable <: Function` and not as an instance of a
-"direct" subtype of `Function`.)
+(Usage notes: An "EAFP-compatible" function can be declared with `Try.@function f` instead
+of `function f end`.  It automatically defines a catch-all fallback method that returns an
+`Err{<:NotImplementedError}`.)
 
 #### Side notes on `hasmethod` and `applicable` (and `invoke`)
 
