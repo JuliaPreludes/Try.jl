@@ -19,7 +19,7 @@ jobs:
       - name: Install Run.jl
         run: julia -e 'using Pkg; pkg"add Run@0.1"'
       - name: Install dependencies
-        run: julia -e 'using Run; Run.prepare_docs()'
+        run: docs/instantiate.jl
       - name: Build and deploy
         id: build-and-deploy
         if: |
