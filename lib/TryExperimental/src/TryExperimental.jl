@@ -1,47 +1,41 @@
 baremodule TryExperimental
 
-import Try
-
 module InternalPrelude
 include("prelude.jl")
 end  # module InternalPrelude
-InternalPrelude.@reexport_try
 
-Try.@function convert
-# Try.@function promote
+InternalPrelude.@exported_function tryconvert
+# InternalPrelude.@exported_function trypromote
 
 # Collection interface
-Try.@function length
-Try.@function eltype
+InternalPrelude.@exported_function trygetlength
+InternalPrelude.@exported_function trygeteltype
 
-Try.@function getindex
-Try.@function setindex!
+InternalPrelude.@exported_function trygetindex
+InternalPrelude.@exported_function trysetindex!
 
-Try.@function first
-Try.@function last
+InternalPrelude.@exported_function trygetfirst
+InternalPrelude.@exported_function trygetlast
 
-Try.@function push!
-Try.@function pushfirst!
-Try.@function pop!
-Try.@function popfirst!
+InternalPrelude.@exported_function trypush!
+InternalPrelude.@exported_function trypushfirst!
+InternalPrelude.@exported_function trypop!
+InternalPrelude.@exported_function trypopfirst!
 
-Try.@function put!
-Try.@function take!
-
-Try.@function push_nowait!
-Try.@function pushfirst_nowait!
-Try.@function pop_nowait!
-Try.@function popfirst_nowait!
-
-Try.@function put_nowait!
-Try.@function take_nowait!
+InternalPrelude.@exported_function tryput!
+InternalPrelude.@exported_function trytake!
 
 module Internal
 
 import ..TryExperimental
-const Try = TryExperimental
-using .Try
-using .Try: Causes
+using Try
+using Try: Causes
+
+for n in names(TryExperimental; all = true)
+    startswith(string(n), "try") || continue
+    fn = getproperty(TryExperimental, n)
+    @eval import TryExperimental: $n
+end
 
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
