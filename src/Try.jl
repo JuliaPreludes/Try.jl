@@ -29,8 +29,6 @@ const ConcreteErr{E} = ConcreteResult{Union{},E}
 
 const Result{T,E} = Union{ConcreteResult{<:T,<:E},DynamicResult{<:T,<:E}}
 
-function throw end
-
 function unwrap end
 function unwrap_err end
 

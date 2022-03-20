@@ -5,14 +5,14 @@ Try.Err{E}(value) where {E<:Exception} = Try.Err{E}(value, maybe_backtrace())
 
 Try.unwrap(result::ConcreteResult) = Try.unwrap(result.value)
 Try.unwrap(ok::Ok) = ok.value
-Try.unwrap(err::Err) = Try.throw(err)
+Try.unwrap(err::Err) = _throw(err)
 
 Try.unwrap_err(result::ConcreteResult) = Try.unwrap_err(result.value)
 Try.unwrap_err(ok::Ok) = throw(Try.IsOkError(ok))
 Try.unwrap_err(err::Err) = err.value
 
-Try.throw(err::ConcreteErr) = Try.throw(err.value)
-function Try.throw(err::Err)
+_throw(err::ConcreteErr) = _throw(err.value)
+function _throw(err::Err)
     if err.backtrace === nothing
         throw(err.value)
     else
