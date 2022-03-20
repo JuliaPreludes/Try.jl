@@ -66,7 +66,7 @@ using ..Try:
     ConcreteErr,
     ConcreteOk,
     ConcreteResult,
-    DynamicResult,
+DynamicResult,
     Err,
     Ok,
     Result,

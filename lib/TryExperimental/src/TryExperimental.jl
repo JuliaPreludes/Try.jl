@@ -41,7 +41,7 @@ module Internal
 using ..TryExperimental: TryExperimental, Causes
 using Try
 
-for n in names(TryExperimental; all = true)
+for n = names(TryExperimental; all = true)
     startswith(string(n), "try") || continue
     fn = getproperty(TryExperimental, n)
     @eval import TryExperimental: $n
