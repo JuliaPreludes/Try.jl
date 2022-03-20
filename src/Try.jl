@@ -88,7 +88,9 @@ using ..Try:
 
 using Base.Meta: isexpr
 
-include("utils.jl")
+include("ExternalDocstrings.jl")
+using .ExternalDocstrings: @define_docstrings
+
 include("core.jl")
 include("show.jl")
 include("errortrace.jl")
@@ -100,6 +102,6 @@ include("sugar.jl")
 
 end  # module Internal
 
-Internal.define_docstrings()
+Internal.@define_docstrings
 
 end  # baremodule Try
