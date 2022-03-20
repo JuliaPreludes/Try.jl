@@ -63,28 +63,6 @@ Try.oktype(result::AbstractResult) = Try.oktype(typeof(result))
 Try.errtype(::Type{R}) where {E,R<:AbstractResult{<:Any,E}} = E
 Try.errtype(result::AbstractResult) = Try.errtype(typeof(result))
 
-Try.ok(result::Ok) = Some{Try.oktype(result)}(result.value)
-Try.ok(::Err) = nothing
-function Try.ok(result::ConcreteResult)
-    value = result.value
-    if value isa Ok
-        return Try.ok(value)
-    else
-        return nothing
-    end
-end
-
-Try.err(::Ok) = nothing
-Try.err(result::Err) = Some{Try.errtype(result)}(result.value)
-function Try.err(result::ConcreteResult)
-    value = result.value
-    if value isa Err
-        return Try.err(value)
-    else
-        return nothing
-    end
-end
-
 Try.isok(::Ok) = true
 Try.isok(::Err) = false
 Try.isok(result::ConcreteResult) = result.value isa Ok

@@ -43,4 +43,14 @@ include("base.jl")
 
 end  # module Internal
 
+# TODO: move this to Maybe.jl
+baremodule Maybe
+function ok end
+function err end
+module Internal
+using ..Maybe
+include("maybe.jl")
+end
+end  # module Maybe
+
 end  # baremodule TryExperimental
