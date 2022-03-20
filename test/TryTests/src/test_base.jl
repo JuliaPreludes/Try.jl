@@ -1,7 +1,10 @@
 module TestBase
 
 using Test
-using Try
+
+import TryExperimental
+const Try = TryExperimental
+using .Try
 
 function test_convert()
     @test Try.unwrap(Try.convert(Int, 1)) === 1
