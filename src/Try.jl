@@ -4,6 +4,11 @@ export Ok, Err, Result
 
 using Base: Base, Exception
 
+module InternalPrelude
+function _ConcreteResult end
+function _IsOkError end
+end  # module InternalPrelude
+
 abstract type AbstractResult{T,E} end
 
 struct Ok{T} <: AbstractResult{T,Union{}}
@@ -17,11 +22,11 @@ end
 
 const DynamicResult{T,E} = Union{Ok{T},Err{E}}
 
-function _ConcreteResult end
-
 struct ConcreteResult{T,E} <: AbstractResult{T,E}
     value::DynamicResult{T,E}
-    global _ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} = new{T,E}(value)
+
+    InternalPrelude._ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} =
+        new{T,E}(value)
 end
 
 const ConcreteOk{T} = ConcreteResult{T,Union{}}
@@ -44,7 +49,9 @@ function istryable end
 
 # Core exceptions
 struct IsOkError <: Exception
-    ok::AbstractResult{<:Any,Union{}}
+    ok::AbstractResult
+
+    InternalPrelude._IsOkError(ok) = new(ok)
 end
 
 abstract type NotImplementedError <: Exception end
@@ -70,8 +77,8 @@ using ..Try:
     Err,
     Ok,
     Result,
-    Try,
-    _ConcreteResult
+    Try
+using ..Try.InternalPrelude: _ConcreteResult, _IsOkError
 
 using Base.Meta: isexpr
 
