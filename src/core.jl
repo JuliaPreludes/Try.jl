@@ -20,6 +20,13 @@ function _throw(err::Err)
     end
 end
 
+function Try.IsOkError(ok)
+    if Try.iserr(ok)
+        error("unexpected error value: ", ok)
+    end
+    return _IsOkError(ok)
+end
+
 Base.convert(::Type{Ok{T}}, ok::Ok) where {T} = Ok{T}(ok.value)
 Base.convert(::Type{Err{E}}, err::Err) where {E} = Err{E}(err.value)
 # An interesting approach may be to simply throw the `err.value` if it is not a
