@@ -1,14 +1,12 @@
 module TestTools
 
 using Test
-
-import TryExperimental
-const Try = TryExperimental
-using .Try
+using Try
+using TryExperimental
 
 function test_curry()
     value =
-        Try.convert(String, 1) |>
+        tryconvert(String, 1) |>
         Try.or_else() do _
             Ok("123")
         end |>
@@ -25,10 +23,10 @@ function demo_macro(xs)
     y = nothing
     while true
         #! format: off
-        x = @Try.or_else(Try.getindex(xs, i)) do _
+        x = @Try.or_else(trygetindex(xs, i)) do _
             return :oob
         end
-        @Try.and_then(Try.getindex(xs, Try.unwrap(x))) do z
+        @Try.and_then(trygetindex(xs, Try.unwrap(x))) do z
             if z > 1
                 y = z
                 break

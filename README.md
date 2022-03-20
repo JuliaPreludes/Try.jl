@@ -17,20 +17,22 @@ For more explanation, see [Discussion](#discussion) below.
 ### Basic usage
 
 ```julia
-julia> import TryExperimental as Try
+julia> using Try
+
+julia> using TryExperimental  # exports trygetindex etc.
 ```
 
 Try.jl-based API return either an `OK` value
 
 ```julia
-julia> ok = Try.getindex(Dict(:a => 111), :a)
+julia> ok = trygetindex(Dict(:a => 111), :a)
 Try.Ok: 111
 ```
 
 or an `Err` value:
 
 ```julia
-julia> err = Try.getindex(Dict(:a => 111), :b)
+julia> err = trygetindex(Dict(:a => 111), :b)
 Try.Err: KeyError: key :b not found
 ```
 
@@ -63,7 +65,7 @@ Consider an example where an error "bubbles up" from a deep stack of function
 calls:
 
 ```JULIA
-julia> import TryExperimental as Try
+julia> using Try, TryExperimental
 
 julia> f1(x) = x ? Ok(nothing) : Err(KeyError(:b));
 
@@ -122,18 +124,17 @@ been already started.
 ### EAFP
 
 As explained in [EAFP and traits](#eafp-and-traits) below, the `Base`-like API
-defined in `Try` namespace does not throw when the method is not defined.  For
-example, `Try.eltype` and `Try.length` can be called on arbitrary objects (=
+defined in `TryExperimental` does not throw when the method is not defined.  For
+example, `trygeteltype` and `trygetlength` can be called on arbitrary objects (=
 "asking for forgiveness") without checking if the method is defined (= "asking
 for permission").
 
 ```julia
-import TryExperimental as Try
-using .Try
+using Try, TryExperimental
 
 function try_map_prealloc(f, xs)
-    T = Try.@return_err Try.eltype(xs)  # macro-based short-circuiting
-    n = Try.@return_err Try.length(xs)
+    T = Try.@return_err trygeteltype(xs)  # macro-based short-circuiting
+    n = Try.@return_err trygetlength(xs)
     ys = Vector{T}(undef, n)
     for (i, x) in zip(eachindex(ys), xs)
         ys[i] = f(x)
@@ -174,20 +175,16 @@ return type of `Union{Ok,Err}`. Thus, the compiler can sometimes prove that
 success or failure paths can never be taken:
 
 ```julia
-julia> import TryExperimental as Try
+julia> using TryExperimental, InteractiveUtils
 
-julia> using .Try
+julia> @code_typed(trygetfirst((111, "two", :three)))[2]  # always succeeds for non empty tuples
+Ok{Int64}
 
-julia> using InteractiveUtils
+julia> @code_typed(trygetfirst(()))[2]  # always fails for an empty tuple
+Err{BoundsError}
 
-julia> @code_typed(Try.first((111, "two", :three)))[2]  # always succeeds for non empty tuples
-Try.Ok{Int64}
-
-julia> @code_typed(Try.first(()))[2]  # always fails for an empty tuple
-Try.Err{BoundsError}
-
-julia> @code_typed(Try.first(Int[]))[2]  # both are possible for an array
-Union{Try.Ok{Int64}, Try.Err{BoundsError}}
+julia> @code_typed(trygetfirst(Int[]))[2]  # both are possible for an array
+Union{Ok{Int64}, Err{BoundsError}}
 ```
 
 ### Constraining returnable errors
@@ -218,8 +215,7 @@ Here is an example of providing the call API `tryparse` with the overload API
 can return `InvalidCharError()` or `EndOfBufferError()` as an error value:
 
 ```julia
-import TryExperimental as Try
-using .Try
+using Try, TryExperimental
 
 struct InvalidCharError <: Exception end
 struct EndOfBufferError <: Exception end
@@ -332,7 +328,7 @@ Importantly, the EAFP approach does not have the problem of the trait-based
 feature detection where the implementer must ensure that declared trait (e.g.,
 `HasLength`) is compatible with the actual definition (e.g., `length`).  With
 the EAFP approach, *the feature is declared automatically by defining of the
-method providing it* (e.g., `Try.length`).  Thus, by construction, it is hard to
+method providing it* (e.g., `trygetlength`).  Thus, by construction, it is hard to
 make the feature declaration and definition out-of-sync.  Of course, this
 approach works only for effect-free or "redo-able" functions.  To check if a
 sequence of destructive operations is possible, the trait-based approach is
