@@ -27,6 +27,17 @@ macro define_function(name::Symbol)
     end |> esc
 end
 
-(fn::Tryable)(args...; kwargs...) = Causes.notimplemented(fn, args, kwargs)
+(fn::Tryable)(args...; kwargs...) = Err(Try.NotImplementedError(fn, args, kwargs))
+
+struct NotImplementedError{T} <: Try.NotImplementedError end
+# TODO: check if it is better to "type-erase"
+# TODO: don't ignore kwargs?
+
+Try.NotImplementedError(f, args, _kwargs) =
+    NotImplementedError{Tuple{_typesof(f, args...)...}}()
+
+_typesof() = ()
+_typesof(::Type{Head}, tail...) where {Head} = (Type{Head}, _typesof(tail...)...)
+_typesof(head, tail...) = (typeof(head), _typesof(tail...)...)
 
 # TODO: show methods

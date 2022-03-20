@@ -49,17 +49,7 @@ struct IsOkError <: Exception
     ok::AbstractResult{<:Any,Union{}}
 end
 
-# Basic exceptions
 abstract type NotImplementedError <: Exception end
-abstract type ClosedError <: Exception end
-abstract type EmptyError <: Exception end
-abstract type FullError <: Exception end
-
-baremodule Causes
-function notimplemented end
-function empty end
-function closed end
-end  # baremodule Cause
 
 macro and_then end
 macro or_else end
@@ -75,7 +65,6 @@ module Internal
 import ..Try: @return, @return_err, @and_then, @or_else, @function
 using ..Try:
     AbstractResult,
-    Causes,
     ConcreteErr,
     ConcreteOk,
     ConcreteResult,
@@ -95,7 +84,6 @@ include("core.jl")
 include("show.jl")
 include("errortrace.jl")
 include("function.jl")
-include("causes.jl")
 
 include("tools.jl")
 include("sugar.jl")

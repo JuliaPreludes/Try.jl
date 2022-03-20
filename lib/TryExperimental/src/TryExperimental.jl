@@ -25,11 +25,21 @@ InternalPrelude.@exported_function trypopfirst!
 InternalPrelude.@exported_function tryput!
 InternalPrelude.@exported_function trytake!
 
+# Basic exceptions
+abstract type EmptyError <: Exception end
+abstract type ClosedError <: Exception end
+# abstract type FullError <: Exception end
+
+baremodule Causes
+function notimplemented end
+function empty end
+function closed end
+end  # baremodule Cause
+
 module Internal
 
-import ..TryExperimental
+using ..TryExperimental: TryExperimental, Causes
 using Try
-using Try: Causes
 
 for n in names(TryExperimental; all = true)
     startswith(string(n), "try") || continue
@@ -39,6 +49,7 @@ end
 
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
+include("causes.jl")
 include("base.jl")
 
 end  # module Internal
