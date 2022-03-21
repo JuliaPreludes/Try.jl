@@ -1,1 +1,1 @@
-    Err{E} <: Result{T,E<:Exception}
+    Result{T,E}
