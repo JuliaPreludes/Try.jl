@@ -1,6 +1,6 @@
 baremodule Try
 
-export @?, Ok, Err, Result
+export @?, Ok, Err
 
 module InternalPrelude
 abstract type AbstractResult{T,E} end
@@ -54,7 +54,6 @@ using ..Try.InternalPrelude: AbstractResult, _IsOkError
 include("ExternalDocstrings.jl")
 using .ExternalDocstrings: @define_docstrings
 
-include("concrete.jl")
 include("core.jl")
 include("show.jl")
 include("errortrace.jl")
@@ -63,8 +62,6 @@ include("function.jl")
 include("branch.jl")
 
 end  # module Internal
-
-const Result = Internal.Result
 
 Internal.@define_docstrings
 

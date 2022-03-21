@@ -2,7 +2,6 @@
 
 ```@docs
 Try
-Result
 Ok
 Err
 ```
