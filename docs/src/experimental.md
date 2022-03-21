@@ -2,6 +2,7 @@
 
 ```@docs
 TryExperimental.Result
+TryExperimental.ConcreteResult
 ```
 
 ## [Customizing short-circuit evaluation](@id customize-short-circuit)

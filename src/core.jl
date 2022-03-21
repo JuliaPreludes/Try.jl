@@ -1,7 +1,7 @@
 Try.Ok(::Type{T}) where {T} = Try.Ok{Type{T}}(T)
 
 Try.Err(value) = Try.Err(value, maybe_backtrace())
-Try.Err{E}(value) where {E<:Exception} = Try.Err{E}(value, maybe_backtrace())
+Try.Err{E}(value) where {E} = Try.Err{E}(value, maybe_backtrace())
 
 Try.unwrap(ok::Ok) = ok.value
 Try.unwrap(err::Err) = _throw(err)
