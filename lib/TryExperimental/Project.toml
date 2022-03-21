@@ -7,4 +7,5 @@ version = "0.1.0-DEV"
 Try = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
 
 [compat]
+Try = "0.1"
 julia = "1.6"
