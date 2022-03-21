@@ -27,17 +27,34 @@ macro define_function(name::Symbol)
     end |> esc
 end
 
-(fn::Tryable)(args...; kwargs...) = Err(Try.NotImplementedError(fn, args, kwargs))
+(fn::Tryable)(args...; kwargs...) = Err(Try.NotImplementedError(fn, args, values(kwargs)))
 
-struct NotImplementedError{T} <: Try.NotImplementedError end
+struct NotImplementedError{F,Args<:Tuple,Kwargs<:NamedTuple} <: Try.NotImplementedError
+    f::F
+    args::Args
+    kwargs::Kwargs
+end
 # TODO: check if it is better to "type-erase"
-# TODO: don't ignore kwargs?
+# TODO: don't capture values?
 
-Try.NotImplementedError(f, args, _kwargs) =
-    NotImplementedError{Tuple{_typesof(f, args...)...}}()
+asnamedtuple(kwargs::NamedTuple) = kwargs
+asnamedtuple(kwargs) = (; kwargs...)
+
+Try.NotImplementedError(
+    f,
+    args::Tuple,
+    kwargs::Union{NamedTuple,Iterators.Pairs} = NamedTuple(),
+) = NotImplementedError(f, args, asnamedtuple(kwargs))
 
 _typesof() = ()
 _typesof(::Type{Head}, tail...) where {Head} = (Type{Head}, _typesof(tail...)...)
 _typesof(head, tail...) = (typeof(head), _typesof(tail...)...)
 
-# TODO: show methods
+Base.print(io::IO, fn::Tryable) = print(io, nameof(fn))
+Base.show(io::IO, fn::Tryable) = print(io, nameof(fn))
+
+function Base.show(io::IO, ::MIME"text/plain", fn::Tryable)
+    print(io, nameof(fn))
+    n = length(methods(fn))
+    print(io, " (tryable function with ", n, " method", n == 1 ? "" : "s", ")")
+end

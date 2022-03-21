@@ -55,11 +55,10 @@ include("ExternalDocstrings.jl")
 using .ExternalDocstrings: @define_docstrings
 
 include("core.jl")
-include("show.jl")
 include("errortrace.jl")
 include("function.jl")
-
 include("branch.jl")
+include("show.jl")
 
 end  # module Internal
 
