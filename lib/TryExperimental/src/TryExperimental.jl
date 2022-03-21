@@ -38,6 +38,8 @@ abstract type EmptyError <: Exception end
 abstract type ClosedError <: Exception end
 # abstract type FullError <: Exception end
 
+const ConcreteResult = Try.Internal.ConcreteResult
+
 macro and_then end
 macro or_else end
 

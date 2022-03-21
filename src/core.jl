@@ -11,7 +11,7 @@ Try.unwrap_err(result::ConcreteResult) = Try.unwrap_err(result.value)
 Try.unwrap_err(ok::Ok) = throw(Try.IsOkError(ok))
 Try.unwrap_err(err::Err) = err.value
 
-_throw(err::ConcreteErr) = _throw(err.value)
+_throw(err::ConcreteResult) = _throw(err.value)
 function _throw(err::Err)
     if err.backtrace === nothing
         throw(err.value)
@@ -36,11 +36,6 @@ Base.convert(::Type{Err{E}}, err::Err) where {E} = Err{E}(err.value)
 
 _concrete(result::Ok) = _ConcreteResult(Try.oktype(result), Union{}, result)
 _concrete(result::Err) = _ConcreteResult(Union{}, Try.errtype(result), result)
-
-Try.ConcreteOk(value) = _concrete(Ok(value))
-Try.ConcreteOk{T}(value) where {T} = _concrete(Ok{T}(value))
-Try.ConcreteErr(value) = _concrete(Err(value))
-Try.ConcreteErr{E}(value) where {E} = _concrete(Err{E}(value))
 
 Base.convert(::Type{ConcreteResult{T,E}}, result::Ok) where {T,E} =
     _ConcreteResult(T, E, convert(Ok{T}, result))

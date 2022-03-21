@@ -2,37 +2,19 @@ baremodule Try
 
 export @?, Ok, Err, Result
 
-using Base: Base, Exception
-
 module InternalPrelude
-function _ConcreteResult end
+abstract type AbstractResult{T,E} end
 function _IsOkError end
 end  # module InternalPrelude
 
-abstract type AbstractResult{T,E} end
-
-struct Ok{T} <: AbstractResult{T,Union{}}
+struct Ok{T} <: InternalPrelude.AbstractResult{T,Union{}}
     value::T
 end
 
-struct Err{E} <: AbstractResult{Union{},E}
+struct Err{E} <: InternalPrelude.AbstractResult{Union{},E}
     value::E
-    backtrace::Union{Nothing,typeof(Base.backtrace())}
+    backtrace::Union{Nothing,typeof(InternalPrelude.backtrace())}
 end
-
-const DynamicResult{T,E} = Union{Ok{T},Err{E}}
-
-struct ConcreteResult{T,E} <: AbstractResult{T,E}
-    value::DynamicResult{T,E}
-
-    InternalPrelude._ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} =
-        new{T,E}(value)
-end
-
-const ConcreteOk{T} = ConcreteResult{T,Union{}}
-const ConcreteErr{E} = ConcreteResult{Union{},E}
-
-const Result{T,E} = Union{ConcreteResult{<:T,<:E},DynamicResult{<:T,<:E}}
 
 function unwrap end
 function unwrap_err end
@@ -49,13 +31,13 @@ function istryable end
 function var"@function" end
 
 # Core exceptions
-struct IsOkError <: Exception
-    ok::AbstractResult
+struct IsOkError <: InternalPrelude.Exception
+    ok::InternalPrelude.AbstractResult
 
     InternalPrelude._IsOkError(ok) = new(ok)
 end
 
-abstract type NotImplementedError <: Exception end
+abstract type NotImplementedError <: InternalPrelude.Exception end
 
 macro and_return end
 function var"@?" end
@@ -66,21 +48,13 @@ function or_else end
 module Internal
 
 import ..Try: @and_return, @?, @function
-using ..Try:
-    AbstractResult,
-    ConcreteErr,
-    ConcreteOk,
-    ConcreteResult,
-    DynamicResult,
-    Err,
-    Ok,
-    Result,
-    Try
-using ..Try.InternalPrelude: _ConcreteResult, _IsOkError
+using ..Try: Err, Ok, Try
+using ..Try.InternalPrelude: AbstractResult, _IsOkError
 
 include("ExternalDocstrings.jl")
 using .ExternalDocstrings: @define_docstrings
 
+include("concrete.jl")
 include("core.jl")
 include("show.jl")
 include("errortrace.jl")
@@ -89,6 +63,8 @@ include("function.jl")
 include("branch.jl")
 
 end  # module Internal
+
+const Result = Internal.Result
 
 Internal.@define_docstrings
 
