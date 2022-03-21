@@ -133,8 +133,8 @@ for permission").
 using Try, TryExperimental
 
 function try_map_prealloc(f, xs)
-    T = Try.@return_err trygeteltype(xs)  # macro-based short-circuiting
-    n = Try.@return_err trygetlength(xs)
+    T = @? trygeteltype(xs)  # macro-based short-circuiting
+    n = @? trygetlength(xs)
     ys = Vector{T}(undef, n)
     for (i, x) in zip(eachindex(ys), xs)
         ys[i] = f(x)

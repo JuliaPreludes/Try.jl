@@ -1,6 +1,6 @@
 baremodule Try
 
-export Ok, Err, Result
+export @?, Ok, Err, Result
 
 using Base: Base, Exception
 
@@ -46,6 +46,7 @@ function enable_errortrace end
 function disable_errortrace end
 
 function istryable end
+function var"@function" end
 
 # Core exceptions
 struct IsOkError <: Exception
@@ -58,16 +59,16 @@ abstract type NotImplementedError <: Exception end
 
 macro and_then end
 macro or_else end
-macro return_err end
-function var"@return" end
-function var"@function" end
+
+macro and_return end
+function var"@?" end
 
 function and_then end
 function or_else end
 
 module Internal
 
-import ..Try: @return, @return_err, @and_then, @or_else, @function
+import ..Try: @and_return, @?, @and_then, @or_else, @function
 using ..Try:
     AbstractResult,
     ConcreteErr,
@@ -90,7 +91,8 @@ include("show.jl")
 include("errortrace.jl")
 include("function.jl")
 
-include("tools.jl")
+include("branch.jl")
+
 include("sugar.jl")
 
 end  # module Internal

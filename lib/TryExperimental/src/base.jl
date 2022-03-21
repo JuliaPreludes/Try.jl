@@ -66,13 +66,13 @@ trypop!(a::Vector)::Result = isempty(a) ? Causes.empty(a) : Ok(pop!(a))
 trypopfirst!(a::Vector)::Result = isempty(a) ? Causes.empty(a) : Ok(popfirst!(a))
 
 function trypush!(a::Vector, x)::Result
-    y = Try.@return_err tryconvert(eltype(a), x)
+    y = @? tryconvert(eltype(a), x)
     push!(a, y)
     return Ok(a)
 end
 
 function trypushfirst!(a::Vector, x)::Result
-    y = Try.@return_err tryconvert(eltype(a), x)
+    y = @? tryconvert(eltype(a), x)
     pushfirst!(a, y)
     return Ok(a)
 end
@@ -85,7 +85,7 @@ end
 
 function tryput!(ch::Channel, x)::Result
     isopen(ch) || return Causes.closed(ch)
-    y = Try.@return_err tryconvert(eltype(ch), x)
+    y = @? tryconvert(eltype(ch), x)
     try
         put!(ch, x)
     catch err
