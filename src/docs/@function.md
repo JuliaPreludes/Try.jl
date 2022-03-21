@@ -2,7 +2,15 @@
 
 Create a function that can be called without causing a `MethodError`.
 
-See also: [`istryable`](@ref).
+Note that [`Ok`](@ref) and [`Err`](@ref) values can be used in arbitrary functions.
+`Try.@function fn` is simply a shorthand for defining a fallback implementation
+
+    fn(args...; kwargs...) = Err(Try.NotImplementedError(fn, args, values(kwargs)))
+
+(and auxiliary methods like [`Try.istryable`](@ref)) to help the ["Easier to ask for
+forgiveness than permission" (EAFP)](https://github.com/tkf/Try.jl#eafp) approach.
+
+See also: [`Try.istryable`](@ref).
 
 # Examples
 
