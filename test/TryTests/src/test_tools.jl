@@ -5,6 +5,12 @@ using Try
 using TryExperimental
 using TryExperimental: @and_then, @or_else
 
+if !@isdefined Returns
+    Returns(y) = function constant(_args...; _kwrags...)
+        return y
+    end
+end
+
 function trygetnitems(xs)
     Try.@and_return trygetlength(xs)
     Ok(count(Returns(true), xs))
@@ -68,7 +74,12 @@ function test_curry()
             Ok("123")
         end |>
         Try.and_then() do x
-            Ok(@something(tryparse(Int, x), return Err(ErrorException(""))))
+            y = tryparse(Int, x)
+            if y === nothing
+                Err(ErrorException(""))
+            else
+                Ok(y)
+            end
         end |>
         Try.unwrap
 
