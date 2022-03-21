@@ -9,7 +9,7 @@ See also: [`isok`](@ref), [`unwrap`](@ref)
 ```julia
 julia> using Try
 
-julia> result = Try.Ok(1)
+julia> result = Ok(1)
 Try.Ok: 1
 
 julia> Try.unwrap(result)
