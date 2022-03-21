@@ -27,12 +27,12 @@ eltype_impl(::Type{T}) where {T} =
     end
 
 @inline function trygetindex(a::AbstractArray, i...)::Result
-    (@boundscheck checkbounds(Bool, a, i...)) || return Err(BoundsError(a, i))
+    checkbounds(Bool, a, i...) || return Err(BoundsError(a, i))
     return Ok(@inbounds a[i...])
 end
 
 @inline function trysetindex!(a::AbstractArray, v, i...)::Result
-    (@boundscheck checkbounds(Bool, a, i...)) || return Err(BoundsError(a, i))
+    checkbounds(Bool, a, i...) || return Err(BoundsError(a, i))
     @inbounds a[i...] = v
     return Ok(v)
 end
