@@ -38,6 +38,9 @@ abstract type EmptyError <: Exception end
 abstract type ClosedError <: Exception end
 # abstract type FullError <: Exception end
 
+macro and_then end
+macro or_else end
+
 baremodule Causes
 function notimplemented end
 function empty end
@@ -57,6 +60,7 @@ end
 
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
+include("sugars.jl")
 include("causes.jl")
 include("base.jl")
 

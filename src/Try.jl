@@ -57,9 +57,6 @@ end
 
 abstract type NotImplementedError <: Exception end
 
-macro and_then end
-macro or_else end
-
 macro and_return end
 function var"@?" end
 
@@ -92,8 +89,6 @@ include("errortrace.jl")
 include("function.jl")
 
 include("branch.jl")
-
-include("sugar.jl")
 
 end  # module Internal
 

@@ -3,6 +3,7 @@ module TestTools
 using Test
 using Try
 using TryExperimental
+using TryExperimental: @and_then, @or_else
 
 function trygetnitems(xs)
     Try.@and_return trygetlength(xs)
@@ -78,17 +79,15 @@ function demo_macro(xs)
     i = firstindex(xs)
     y = nothing
     while true
-        #! format: off
-        x = @Try.or_else(trygetindex(xs, i)) do _
+        x = @or_else(trygetindex(xs, i)) do _
             return :oob
         end
-        @Try.and_then(trygetindex(xs, Try.unwrap(x))) do z
+        @and_then(trygetindex(xs, Try.unwrap(x))) do z
             if z > 1
                 y = z
                 break
             end
         end
-        #! format: on
         i += 1
     end
     return y
