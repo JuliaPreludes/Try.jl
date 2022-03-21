@@ -1,5 +1,9 @@
 # Try.jl: zero-overhead and debuggable error handling
 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tkf.github.io/Try.jl/dev)
+[![CI](https://github.com/tkf/Try.jl/actions/workflows/test.yml/badge.svg)](https://github.com/tkf/Try.jl/actions/workflows/test.yml)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
 Features:
 
 * Error handling as simple manipulations of *values*.
@@ -11,6 +15,8 @@ Features:
   robust and minimalistic alternative to the trait-based feature detection.
 
 For more explanation, see [Discussion](#discussion) below.
+
+See the [Documentation](https://tkf.github.io/Try.jl/dev/) for API reference.
 
 ## Examples
 
