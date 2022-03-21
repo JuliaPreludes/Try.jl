@@ -38,6 +38,9 @@ abstract type EmptyError <: Exception end
 abstract type ClosedError <: Exception end
 # abstract type FullError <: Exception end
 
+macro and_then end
+macro or_else end
+
 baremodule Causes
 function notimplemented end
 function empty end
@@ -46,6 +49,7 @@ end  # baremodule Cause
 
 module Internal
 
+import ..TryExperimental: @and_then, @or_else
 using ..TryExperimental: TryExperimental, Causes
 using Try
 
@@ -55,8 +59,10 @@ for n in names(TryExperimental; all = true)
     @eval import TryExperimental: $n
 end
 
+using Base.Meta: isexpr
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
+include("sugars.jl")
 include("causes.jl")
 include("base.jl")
 
