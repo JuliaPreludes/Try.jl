@@ -49,6 +49,7 @@ end  # baremodule Cause
 
 module Internal
 
+import ..TryExperimental: @and_then, @or_else
 using ..TryExperimental: TryExperimental, Causes
 using Try
 
@@ -58,6 +59,7 @@ for n in names(TryExperimental; all = true)
     @eval import TryExperimental: $n
 end
 
+using Base.Meta: isexpr
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
 include("sugars.jl")

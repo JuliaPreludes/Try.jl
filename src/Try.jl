@@ -65,7 +65,7 @@ function or_else end
 
 module Internal
 
-import ..Try: @and_return, @?, @and_then, @or_else, @function
+import ..Try: @and_return, @?, @function
 using ..Try:
     AbstractResult,
     ConcreteErr,
@@ -77,8 +77,6 @@ using ..Try:
     Result,
     Try
 using ..Try.InternalPrelude: _ConcreteResult, _IsOkError
-
-using Base.Meta: isexpr
 
 include("ExternalDocstrings.jl")
 using .ExternalDocstrings: @define_docstrings
