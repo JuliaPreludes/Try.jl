@@ -222,7 +222,7 @@ struct EndOfBufferError <: Exception end
 
 const ParseError = Union{InvalidCharError, EndOfBufferError}
 
-tryparse(T, str)::Result{T,ParseError} = __tryparse__(T, str)
+tryparse(T, str)::Result{<:T,<:ParseError} = __tryparse__(T, str)
 
 function __tryparse__(::Type{Int}, str::AbstractString)
     isempty(str) && return Err(EndOfBufferError())
