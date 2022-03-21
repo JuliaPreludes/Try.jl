@@ -8,4 +8,4 @@ struct ConcreteResult{T,E} <: AbstractResult{T,E}
     global _ConcreteResult(::Type{T}, ::Type{E}, value) where {T,E} = new{T,E}(value)
 end
 
-const Result{T,E} = Union{ConcreteResult{<:T,<:E},DynamicResult{<:T,<:E}}
+const Result{T,E} = Union{ConcreteResult{T,E},DynamicResult{T,E}}
