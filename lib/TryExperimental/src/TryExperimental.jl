@@ -1,7 +1,5 @@
 baremodule TryExperimental
 
-export Result
-
 import Try
 
 module InternalPrelude

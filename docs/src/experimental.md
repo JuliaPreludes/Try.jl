@@ -1,7 +1,7 @@
 # Experimental
 
 ```@docs
-Result
+TryExperimental.Result
 ```
 
 ## [Customizing short-circuit evaluation](@id customize-short-circuit)

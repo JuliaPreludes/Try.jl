@@ -217,6 +217,9 @@ can return `InvalidCharError()` or `EndOfBufferError()` as an error value:
 ```julia
 using Try, TryExperimental
 
+const Result{T,E} = Union{Ok{<:T},Err{<:E}}
+# using TryExperimental: Result  # (almost equivalent)
+
 struct InvalidCharError <: Exception end
 struct EndOfBufferError <: Exception end
 
