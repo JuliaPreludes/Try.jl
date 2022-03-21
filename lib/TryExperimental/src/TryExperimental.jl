@@ -1,5 +1,7 @@
 baremodule TryExperimental
 
+export Result
+
 import Try
 
 module InternalPrelude
@@ -38,8 +40,6 @@ abstract type EmptyError <: Exception end
 abstract type ClosedError <: Exception end
 # abstract type FullError <: Exception end
 
-const ConcreteResult = Try.Internal.ConcreteResult
-
 macro and_then end
 macro or_else end
 
@@ -54,6 +54,7 @@ module Internal
 import ..TryExperimental: @and_then, @or_else
 using ..TryExperimental: TryExperimental, Causes
 using Try
+using Try.Internal: AbstractResult
 
 for n in names(TryExperimental; all = true)
     startswith(string(n), "try") || continue
@@ -64,11 +65,15 @@ end
 using Base.Meta: isexpr
 using Base: IteratorEltype, HasEltype, IteratorSize, HasLength, HasShape
 
+include("concrete.jl")
 include("sugars.jl")
 include("causes.jl")
 include("base.jl")
 
 end  # module Internal
+
+const Result = Internal.Result
+const ConcreteResult = Internal.ConcreteResult
 
 # TODO: move this to Maybe.jl
 baremodule Maybe

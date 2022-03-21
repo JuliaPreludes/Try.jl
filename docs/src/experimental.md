@@ -1,5 +1,9 @@
 # Experimental
 
+```@docs
+Result
+```
+
 ## [Customizing short-circuit evaluation](@id customize-short-circuit)
 
 ```@docs
