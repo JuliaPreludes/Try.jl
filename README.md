@@ -412,3 +412,16 @@ is required for building programming tools such as REPL and editor plugins can
 use it.  In summary, `return`-based error reporting is adequate for recoverable
 errors and `throw`-based error reporting is adequate for unrecoverable (i.e.,
 programmer's) errors.
+
+### Links
+#### Similar packages
+
+* [ErrorTypes.jl](https://github.com/jakobnissen/ErrorTypes.jl)
+* [ResultTypes.jl](https://github.com/iamed2/ResultTypes.jl)
+* [Expect.jl](https://github.com/KristofferC/Expect.jl))
+
+#### Other discussions
+
+* [Can we have result value convention for fast error handling? · Discussion #43773 · JuliaLang/julia](https://github.com/JuliaLang/julia/discussions/43773)
+* [Try.jl - JuliaLang - Zulip](https://julialang.zulipchat.com/#narrow/stream/137791-general/topic/Try.2Ejl)
+* [[ANN] ErrorTypes.jl - Rust-like safe errors in Julia - Package Announcements / Package announcements - JuliaLang](https://discourse.julialang.org/t/ann-errortypes-jl-rust-like-safe-errors-in-julia/53953)
