@@ -67,6 +67,7 @@ include("concrete.jl")
 include("sugars.jl")
 include("causes.jl")
 include("base.jl")
+include("show.jl")
 
 end  # module Internal
 
