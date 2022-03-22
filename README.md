@@ -32,7 +32,7 @@ julia> using Try
 julia> using TryExperimental  # exports trygetindex etc.
 ```
 
-Try.jl-based API return either an `OK` value
+Try.jl-based API returns either an `OK` value
 
 ```julia
 julia> ok = trygetindex(Dict(:a => 111), :a)
@@ -85,7 +85,7 @@ julia> f3(x) = f2(x);
 ```
 
 Since Try.jl represents an error simply as a Julia value, there is no
-information on the source of this error:
+information on the source of this error by default:
 
 ```JULIA
 julia> f3(false)
@@ -321,7 +321,7 @@ Above code snippets mention constructors `Ok`, `Err`, and `Some` just enough for
 information about "success" and "failure."
 
 Of course, in Julia, types can be used for controlling execution efficiently and flexibly.
-In fact, above the mechanism required for various short-circuit evaluation can be used for
+In fact, the mechanism required for various short-circuit evaluation can be used for
 arbitrary user-defined types by defining [the short-circuit evaluation
 interface](https://tkf.github.io/Try.jl/dev/experimental/#customize-short-circuit)
 (experimental).
@@ -374,10 +374,10 @@ Traces](https://ziglang.org/documentation/master/#Error-Return-Traces).
 
 ### EAFP and traits
 
-Try.jl exposes a limited set of "verbs" based on Julia `Base` such as
-`Try.take!`.  These functions have a catch-all default definition that returns
-an error value of type `Err{<:NotImplementedError}`.  This lets us use these
-functions in the ["Easier to ask for forgiveness than permission"
+TryExperiments.jl implements a limited set of "verbs" based on Julia `Base` such as
+`trytake!` as a demonstration of Try.jl API.  These functions have a catch-all default
+definition that returns an error value of type `Err{<:NotImplementedError}`.  This lets us
+use these functions in the ["Easier to ask for forgiveness than permission"
 (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) manner because they
 can be called without getting the run-time `MethodError` exception.
 Importantly, the EAFP approach does not have the problem of the trait-based
@@ -440,11 +440,11 @@ Reporting error by `return`ing an `Err` value is particularly useful when an
 error handling occurs in a tight loop.  For example, when composing concurrent
 data structure APIs, it is sometimes required to know the failure mode (e.g.,
 logical vs temporary/contention failures) in a tight loop. It is likely that
-Julia compiler can compile this down to a simple flag-based low-level code or a
-state machine. Note that this style of programming requires a clear definition
-of the API noting on what conditions certain errors are reported. That is to
+Julia compiler can optimize Try.jl's error handling down to a simple flag-based low-level
+code. Note that this style of programming requires a clear definition of
+the API noting on what conditions certain errors are reported. That is to
 say, such an API guarantees the detection of certain unsatisfied "pre-conditions" and the
-caller *program* is expected to have some ways to recover from the error.
+caller *program* is expected to have some ways to recover from these errors.
 
 In contrast, if there is no way for the caller program to recover from the
 error and the error should be reported to a *human*, `throw`ing an exception is
