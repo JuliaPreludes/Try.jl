@@ -15,8 +15,7 @@ end
 
 function test_length()
     @test Try.unwrap_err(trygetlength(nothing)) isa NotImplementedError
-    @test Try.unwrap_err(trygetlength(x for x in 1:10 if isodd(x))) isa
-          NotImplementedError
+    @test Try.unwrap_err(trygetlength(x for x in 1:10 if isodd(x))) isa NotImplementedError
     @test Try.unwrap(trygetlength([1])) == 1
 end
 
