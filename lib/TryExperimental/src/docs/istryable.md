@@ -2,19 +2,19 @@
 
 Check if a `callable` can be called without causing a `MethodError`.
 
-See also: [`Try.@function`](@ref).
+See also: [`@tryable`](@ref).
 
 # Examples
 
 ```julia
-julia> using Try
+julia> using TryExperimental: @tryable, istryable
 
-julia> Try.@function fn;
+julia> @tryable fn;
 
-julia> Try.istryable(fn)
+julia> istryable(fn)
 true
 
-julia> Try.istryable(identity)
+julia> istryable(identity)
 false
 ```
 

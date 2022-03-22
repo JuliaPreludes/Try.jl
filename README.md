@@ -392,7 +392,7 @@ straightforward.  One way to use the EAFP approach for effectful computations is
 low-level two-phase API where the first phase constructs a recipe of how to apply the
 effects in an EAFP manner and the second phase applies the effect.
 
-(Usage notes: An "EAFP-compatible" function can be declared with `Try.@function f` instead
+(Usage notes: An "EAFP-compatible" function can be declared with `@tryable f` instead
 of `function f end`.  It automatically defines a catch-all fallback method that returns an
 `Err{<:NotImplementedError}`.)
 

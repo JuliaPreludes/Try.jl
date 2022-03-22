@@ -14,3 +14,10 @@ TryExperimental.Continue
 TryExperimental.resultof
 TryExperimental.valueof
 ```
+
+## "Tryable" function
+
+```@docs
+TryExperimental.@tryable
+TryExperimental.istryable
+```

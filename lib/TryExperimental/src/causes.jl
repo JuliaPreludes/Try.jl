@@ -2,7 +2,7 @@ Causes.notimplemented(
     f,
     args::Tuple,
     kwargs::Union{NamedTuple,Iterators.Pairs} = NamedTuple(),
-) = Err(Try.NotImplementedError(f, args, kwargs))
+) = Err(NotImplementedError(f, args, kwargs))
 
 
 Causes.empty(container) = Err(TryExperimental.EmptyError(container))

@@ -28,13 +28,6 @@ Try.and_then
 
 See also: [Customizing short-circuit evaluation](@ref customize-short-circuit).
 
-## "Tryable" function
-
-```@docs
-Try.@function
-Try.istryable
-```
-
 ## Debugging interface (error traces)
 
 ```@docs

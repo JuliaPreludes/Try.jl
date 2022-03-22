@@ -27,17 +27,12 @@ function iserr end
 function enable_errortrace end
 function disable_errortrace end
 
-function istryable end
-function var"@function" end
-
 # Core exceptions
 struct IsOkError <: InternalPrelude.Exception
     ok::InternalPrelude.AbstractResult
 
     InternalPrelude._IsOkError(ok) = new(ok)
 end
-
-abstract type NotImplementedError <: InternalPrelude.Exception end
 
 macro and_return end
 function var"@?" end
@@ -47,7 +42,7 @@ function or_else end
 
 module Internal
 
-import ..Try: @and_return, @?, @function
+import ..Try: @and_return, @?
 using ..Try: Err, Ok, Try
 using ..Try.InternalPrelude: AbstractResult, _IsOkError
 
@@ -56,7 +51,6 @@ using .ExternalDocstrings: @define_docstrings
 
 include("core.jl")
 include("errortrace.jl")
-include("function.jl")
 include("branch.jl")
 include("show.jl")
 
