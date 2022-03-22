@@ -13,7 +13,7 @@ Features:
 * Facilitate the ["Easier to ask for forgiveness than permission"
   (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) approach as a
   robust and minimalistic alternative to the trait-based feature detection.
-* Generic tools for composing failable procedures.
+* Generic and extensible tools for composing failable procedures.
 
 For more explanation, see [Discussion](#discussion) below.
 
@@ -22,6 +22,9 @@ See the [Documentation](https://tkf.github.io/Try.jl/dev/) for API reference.
 ## Examples
 
 ### Basic usage
+
+For demonstration, let us import TryExperimental.jl to see how to use failable APIs built
+using Try.jl.
 
 ```julia
 julia> using Try
@@ -64,7 +67,7 @@ julia> Try.unwrap_err(err)
 KeyError(:b)
 ```
 
-and more.
+and [more](https://tkf.github.io/Try.jl/dev/).
 
 ### Error trace
 
@@ -82,7 +85,7 @@ julia> f3(x) = f2(x);
 ```
 
 Since Try.jl represents an error simply as a Julia value, there is no
-information on the source this error:
+information on the source of this error:
 
 ```JULIA
 julia> f3(false)
@@ -179,7 +182,7 @@ mymap(x -> x + 1, (x for x in 1:5 if isodd(x)))
 
 Function using Try.jl for error handling (such as `Try.first`) typically has a
 return type of `Union{Ok,Err}`. Thus, the compiler can sometimes prove that
-success or failure paths can never be taken:
+some success and failure paths can never be taken:
 
 ```julia
 julia> using TryExperimental, InteractiveUtils
@@ -204,22 +207,19 @@ from Try.jl-based functions.  In particular, it may be useful for restricting
 possible errors at an API boundary.  The idea is to separate "call API" `f` from
 "overload API" `__f__` such that new methods are added to `__f__` and not to
 `f`.  We can then wrap the overload API function by the call API function that
-simply declare the return type:
+simply declares the return type:
 
 ```Julia
 f(args...)::Result{Any,PossibleErrors} = __f__(args...)
 ```
 
-(Using type assertion as in `__f__(args...)::Result{Any,PossibleErrors}` also
-works in this case.)
-
-Then, the API specification of `f` can include the overloading instruction
-explaining that method of `__f__` should be defined and enumerate allowed set of
+Then, the API specification of `f` can include the overloading instruction explaining that a
+method of `__f__` (instead of `f`) should be defined and can enumerate allowed set of
 errors.
 
-Here is an example of providing the call API `tryparse` with the overload API
-`__tryparse__` wrapping `Base.tryparase`.  In this toy example, `__tryparse__`
-can return `InvalidCharError()` or `EndOfBufferError()` as an error value:
+Here is an example of a call API `tryparse` with an overload API `__tryparse__` wrapping
+`Base.tryparase`.  In this toy example, `__tryparse__` can return `InvalidCharError()` or
+`EndOfBufferError()` as an error value:
 
 ```julia
 using Try, TryExperimental
@@ -271,7 +271,7 @@ See also:
 ## Discussion
 
 Julia is a dynamic language with a compiler that can aggressively optimize away
-the dynamism to get the performance comparable static languages.  As such, many
+the dynamism to get the performance comparable to static languages.  As such, many
 successful features of Julia provide the usability of a dynamic language while
 paying attentions to the optimizability of the composed code.  However, native
 `throw`/`catch`-based exception is not optimized aggressively and existing
@@ -289,8 +289,8 @@ packages](#similar-packages) focusing on types and is reflected in the name of t
 like Julia in which high-level code should be expressible without managing types.
 
 For example, Try.jl provides [the APIs for short-circuit
-evaluation](https://tkf.github.io/Try.jl/dev/#Short-circuit-evaluation) that can be not only
-for `Union{Ok,Err}`:
+evaluation](https://tkf.github.io/Try.jl/dev/#Short-circuit-evaluation) that can be used not
+only for `Union{Ok,Err}`:
 
 ```julia
 julia> Try.and_then(Ok(1)) do x
@@ -317,7 +317,7 @@ julia> Try.and_then(Some(1)) do x
        end
 ```
 
-Above example mention constructors `Ok`, `Err`, and `Some` just enough for conveying
+Above code snippets mention constructors `Ok`, `Err`, and `Some` just enough for conveying
 information about "success" and "failure."
 
 Of course, in Julia, types can be used for controlling execution efficiently and flexibly.
@@ -354,13 +354,13 @@ with the combination of (post-inference) inlining, scalar replacement of
 aggregate, and dead code elimination.  However, since type inference is the main
 driving force in the inter-procedural analysis and optimization in the Julia
 compiler, `Union` return type is likely to continue to be the most effective way
-to communicate the intent of the code with the compiler (e.g., if a function
+to communicate the intent of the code to the compiler (e.g., if a function
 call always succeeds, always return an `Ok{T}`).
 
 (That said, Try.jl also contains supports for concretely-typed returned value
 when `Union` is not appropriate. This is for experimenting if such a manual
 "type-instability-hiding" is a viable approach at a large scale and if providing
-a uniform API is possible.)
+a pleasing uniform API is possible.)
 
 ### Debuggable error handling
 
@@ -376,7 +376,7 @@ Traces](https://ziglang.org/documentation/master/#Error-Return-Traces).
 
 Try.jl exposes a limited set of "verbs" based on Julia `Base` such as
 `Try.take!`.  These functions have a catch-all default definition that returns
-an error value of type `Err{NotImplementedError}`.  This let us use these
+an error value of type `Err{<:NotImplementedError}`.  This lets us use these
 functions in the ["Easier to ask for forgiveness than permission"
 (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) manner because they
 can be called without getting the run-time `MethodError` exception.
@@ -386,11 +386,11 @@ feature detection where the implementer must ensure that declared trait (e.g.,
 the EAFP approach, *the feature is declared automatically by defining of the
 method providing it* (e.g., `trygetlength`).  Thus, by construction, it is hard to
 make the feature declaration and definition out-of-sync.  Of course, this
-approach works only for effect-free or "redo-able" functions.  To check if a
-sequence of destructive operations is possible, the trait-based approach is
-perhaps unavoidable.  Therefore, these approaches are complementary.  The
-EAFP-based strategy is useful for reducing the complexity of library extension
-interface.
+approach works only for effect-free or "redo-able" functions when naively applied.  To check
+if a sequence of destructive operations is possible, the trait-based approach is very
+straightforward.  One way to use the EAFP approach for effectful computations is to create a
+low-level two-phase API where the first phase constructs a recipe of how to apply the
+effects in an EAFP manner and the second phase applies the effect.
 
 (Usage notes: An "EAFP-compatible" function can be declared with `Try.@function f` instead
 of `function f end`.  It automatically defines a catch-all fallback method that returns an
@@ -400,11 +400,11 @@ of `function f end`.  It automatically defines a catch-all fallback method that 
 
 Note that the EAFP approach using Try.jl is not equivalent to the ["Look before
 you leap" (LBYL)](https://docs.python.org/3/glossary.html#term-LBYL) counterpart
-using `hasmethod` and/or `applicable`.  That is to say, checking `applicable(f,
-x)` before calling `f(x)` may look attractive as it can be done without any
-building blocks.  However, this LBYL approach is fundamentally unusable for
-generic feature detection.  This is because `hasmethod` and `applicable` cannot
-handle "blanket definition" with "internal dispatch" like this:
+using `hasmethod` and/or `applicable`.  Checking `applicable(f, x)` before calling `f(x)`
+may look attractive as it can be done without any manual coding.  However, this LBYL
+approach is fundamentally unusable for generic feature detection.  This is because
+`hasmethod` and `applicable` cannot handle "blanket definition" with "internal dispatch"
+like this:
 
 ```julia
 julia> f(x::Real) = f_impl(x);  # blanket definition
@@ -443,10 +443,10 @@ logical vs temporary/contention failures) in a tight loop. It is likely that
 Julia compiler can compile this down to a simple flag-based low-level code or a
 state machine. Note that this style of programming requires a clear definition
 of the API noting on what conditions certain errors are reported. That is to
-say, the API ensures the detection of unsatisfied pre-conditions and it is
-likely that the caller have some ways to recover from the error.
+say, such an API guarantees the detection of certain unsatisfied "pre-conditions" and the
+caller *program* is expected to have some ways to recover from the error.
 
-In contrast, if there is no way for the caller *program* to recover from the
+In contrast, if there is no way for the caller program to recover from the
 error and the error should be reported to a *human*, `throw`ing an exception is
 more appropriate.  For example, if an inconsistency of the internal state of a
 data structure is detected, it is likely a bug in the usage or implementation.
@@ -455,10 +455,9 @@ out-of-contract error and only the human programmer can take an action.  To
 support typical interactive workflow in Julia, printing an error and aborting
 the whole program is not an option.  Thus, it is crucial that it is possible to
 recover even from an out-of-contract error in Julia.  Such a language construct
-is required for building programming tools such as REPL and editor plugins can
-use it.  In summary, `return`-based error reporting is adequate for recoverable
-errors and `throw`-based error reporting is adequate for unrecoverable (i.e.,
-programmer's) errors.
+is required for building programming tools such as REPL and editor plugins.  In summary,
+`return`-based error reporting is adequate for recoverable errors and `throw`-based error
+reporting is adequate for unrecoverable (i.e., programmer's) errors.
 
 ### Links
 #### Similar packages
