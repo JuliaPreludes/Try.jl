@@ -464,7 +464,7 @@ reporting is adequate for unrecoverable (i.e., programmer's) errors.
 
 * [ErrorTypes.jl](https://github.com/jakobnissen/ErrorTypes.jl)
 * [ResultTypes.jl](https://github.com/iamed2/ResultTypes.jl)
-* [Expect.jl](https://github.com/KristofferC/Expect.jl))
+* [Expect.jl](https://github.com/KristofferC/Expect.jl)
 
 #### Other discussions
 
