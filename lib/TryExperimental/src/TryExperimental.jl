@@ -2,6 +2,10 @@ baremodule TryExperimental
 
 import Try
 
+macro tryable end
+function istryable end
+abstract type NotImplementedError <: Try.Internal.Base.Exception end
+
 module InternalPrelude
 include("prelude.jl")
 end  # module InternalPrelude
@@ -51,6 +55,7 @@ module Internal
 
 import ..TryExperimental: @and_then, @or_else
 using ..TryExperimental: TryExperimental, Causes
+using ..TryExperimental.InternalPrelude: NotImplementedError
 using Try
 using Try.Internal: AbstractResult
 

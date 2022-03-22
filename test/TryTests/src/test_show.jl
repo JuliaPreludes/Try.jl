@@ -2,8 +2,9 @@ module TestShow
 
 using Test
 using Try
+using TryExperimental: @tryable, NotImplementedError
 
-Try.@function dummy
+@tryable dummy
 
 function test_tryable()
     @test string(dummy) == "dummy"
@@ -12,7 +13,7 @@ function test_tryable()
 end
 
 function test_notimplementederror()
-    ex = Try.NotImplementedError(identity, (1, 2, 3), (a = 4, b = 5))
+    ex = NotImplementedError(identity, (1, 2, 3), (a = 4, b = 5))
     msg = sprint(showerror, ex)
     @test occursin("identity(1, 2, 3; a = 4, b = 5)", msg)
 end

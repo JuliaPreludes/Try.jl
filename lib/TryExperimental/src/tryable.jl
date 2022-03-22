@@ -1,7 +1,7 @@
 """
     Tryable <: Function
 
-An *implementation detail* of `Try.@function`.
+An *implementation detail* of `@tryable`.
 
 This is not exposed as an API because:
 
@@ -13,12 +13,10 @@ This is not exposed as an API because:
 """
 abstract type Tryable <: Function end
 
-Try.istryable(::Any) = false
-Try.istryable(::Tryable) = true
+istryable(::Any) = false
+istryable(::Tryable) = true
 
-const var"@define_function" = var"@function"
-
-macro define_function(name::Symbol)
+macro tryable(name::Symbol)
     typename = gensym("typeof_$name")
     quote
         struct $typename <: $Tryable end
@@ -27,9 +25,11 @@ macro define_function(name::Symbol)
     end |> esc
 end
 
-(fn::Tryable)(args...; kwargs...) = Err(Try.NotImplementedError(fn, args, values(kwargs)))
+(fn::Tryable)(args...; kwargs...) =
+    Err(TryExperimental.NotImplementedError(fn, args, values(kwargs)))
 
-struct NotImplementedError{F,Args<:Tuple,Kwargs<:NamedTuple} <: Try.NotImplementedError
+struct NotImplementedError{F,Args<:Tuple,Kwargs<:NamedTuple} <:
+       TryExperimental.NotImplementedError
     f::F
     args::Args
     kwargs::Kwargs
@@ -40,7 +40,7 @@ end
 asnamedtuple(kwargs::NamedTuple) = kwargs
 asnamedtuple(kwargs) = (; kwargs...)
 
-Try.NotImplementedError(
+TryExperimental.NotImplementedError(
     f,
     args::Tuple,
     kwargs::Union{NamedTuple,Iterators.Pairs} = NamedTuple(),
