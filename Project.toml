@@ -1,7 +1,7 @@
 name = "Try"
 uuid = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
 authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
-version = "0.1.0-DEV"
+version = "0.1.0"
 
 [compat]
 julia = "1.6"
