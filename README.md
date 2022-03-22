@@ -13,6 +13,7 @@ Features:
 * Facilitate the ["Easier to ask for forgiveness than permission"
   (EAFP)](https://docs.python.org/3/glossary.html#term-EAFP) approach as a
   robust and minimalistic alternative to the trait-based feature detection.
+* Generic tools for composing failable procedures.
 
 For more explanation, see [Discussion](#discussion) below.
 
@@ -279,9 +280,55 @@ Try.jl explores [an alternative solution](https://xkcd.com/927/) embracing the
 dynamism of Julia while restricting the underlying code as much as possible to
 the form that the compiler can optimize away.
 
+### Focus on *actions*; not the types
+
+Try.jl aims at providing generic tools for composing failable procedures.  This emphasis on
+performing *actions* that can fail contrasts with other [similar Julia
+packages](#similar-packages) focusing on types and is reflected in the name of the package:
+*Try*.  This is an important guideline on designing APIs for dynamic programming languages
+like Julia in which high-level code should be expressible without managing types.
+
+For example, Try.jl provides [the APIs for short-circuit
+evaluation](https://tkf.github.io/Try.jl/dev/#Short-circuit-evaluation) that can be not only
+for `Union{Ok,Err}`:
+
+```julia
+julia> Try.and_then(Ok(1)) do x
+           Ok(x + 1)
+       end
+Try.Ok: 2
+
+julia> Try.and_then(Ok(1)) do x
+           iszero(x) ? Ok(x) : Err("not zero")
+       end
+Try.Err: "not zero"
+```
+
+but also for `Union{Some,Nothing}`:
+
+```julia
+julia> Try.and_then(Some(1)) do x
+           Some(x + 1)
+       end
+Some(2)
+
+julia> Try.and_then(Some(1)) do x
+           iszero(x) ? Some(x) : nothing
+       end
+```
+
+Above example mention constructors `Ok`, `Err`, and `Some` just enough for conveying
+information about "success" and "failure."
+
+Of course, in Julia, types can be used for controlling execution efficiently and flexibly.
+In fact, above the mechanism required for various short-circuit evaluation can be used for
+arbitrary user-defined types by defining [the short-circuit evaluation
+interface](https://tkf.github.io/Try.jl/dev/experimental/#customize-short-circuit)
+(experimental).
+
 ### Dynamic returned value types for maximizing optimizability
 
-Try.jl provides an API inspired by Rust's `Result` type.  However, to fully
+Try.jl provides an API inspired by Rust's `Result` type and `Try` trait.  However, to fully
 unlock the power of Julia, Try.jl uses the *small `Union` types* instead of a
 concretely typed `struct` type.  This is essential for idiomatic clean
 high-level Julia code that avoids computing output type manually.  However, all
