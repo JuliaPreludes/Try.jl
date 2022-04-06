@@ -25,7 +25,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/tkf/Try.jl",
+    repo = "github.com/JuliaPreludes/Try.jl",
     devbranch = "main",
     push_preview = true,
     # Ref:
