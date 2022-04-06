@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Try.jl · Try</title><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>Try</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Try.jl</a><ul class="internal"><li><a class="tocitem" href="#Result-value-manipulation-API"><span>Result value manipulation API</span></a></li><li><a class="tocitem" href="#Short-circuit-evaluation"><span>Short-circuit evaluation</span></a></li><li><a class="tocitem" href="#Debugging-interface-(error-traces)"><span>Debugging interface (error traces)</span></a></li></ul></li><li><a class="tocitem" href="experimental/">Experimental</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Try.jl</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Try.jl</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaPreludes/Try.jl/blob/master/docs/src/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Try.jl"><a class="docs-heading-anchor" href="#Try.jl">Try.jl</a><a id="Try.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Try.jl" title="Permalink"></a></h1><article class="docstring"><header><a class="docstring-binding" id="Try" href="#Try"><code>Try</code></a> — <span class="docstring-category">Module</span></header><section><div><p><strong>Try.jl: zero-overhead and debuggable error handling</strong></p><p><a href="https://juliapreludes.github.io/Try.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Dev"/></a> <a href="https://github.com/JuliaPreludes/Try.jl/actions/workflows/test.yml"><img src="https://github.com/JuliaPreludes/Try.jl/actions/workflows/test.yml/badge.svg" alt="CI"/></a> <a href="https://github.com/JuliaTesting/Aqua.jl"><img src="https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg" alt="Aqua QA"/></a></p><p>Features:</p><ul><li>Error handling as simple manipulations of <em>values</em>.</li><li>Focus on <em>inferrability</em> and <em>optimizability</em> leveraging unique properties of the Julia language and compiler.</li><li><em>Error trace</em> for determining the source of errors, without <code>throw</code>.</li><li>Facilitate the <a href="https://docs.python.org/3/glossary.html#term-EAFP">&quot;Easier to ask for forgiveness than permission&quot; (EAFP)</a> approach as a robust and minimalistic alternative to the trait-based feature detection.</li><li>Generic and extensible tools for composing failable procedures.</li></ul><p>For more explanation, see <a href="#discussion">Discussion</a> below.</p><p>See the <a href="https://juliapreludes.github.io/Try.jl/dev/">Documentation</a> for API reference.</p><p><strong>Examples</strong></p><p><strong>Basic usage</strong></p><p>For demonstration, let us import TryExperimental.jl to see how to use failable APIs built using Try.jl.</p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; using TryExperimental  # exports trygetindex etc.</code></pre><p>Try.jl-based API returns either an <code>OK</code> value</p><pre><code class="language-julia-repl hljs">julia&gt; ok = trygetindex(Dict(:a =&gt; 111), :a)
+Try.Ok: 111</code></pre><p>or an <code>Err</code> value:</p><pre><code class="language-julia-repl hljs">julia&gt; err = trygetindex(Dict(:a =&gt; 111), :b)
+Try.Err: KeyError: key :b not found</code></pre><p>Together, these values are called <em>result</em> values.  Try.jl provides various tools to deal with the result values such as predicate functions:</p><pre><code class="language-julia-repl hljs">julia&gt; Try.isok(ok)
+true
+
+julia&gt; Try.iserr(err)
+true</code></pre><p>unwrapping function:</p><pre><code class="language-julia-repl hljs">julia&gt; Try.unwrap(ok)
+111
+
+julia&gt; Try.unwrap_err(err)
+KeyError(:b)</code></pre><p>and <a href="https://juliapreludes.github.io/Try.jl/dev/">more</a>.</p><p><strong>Error trace</strong></p><p>Consider an example where an error &quot;bubbles up&quot; from a deep stack of function calls:</p><pre><code class="language-JULIA hljs">julia&gt; using Try, TryExperimental
+
+julia&gt; f1(x) = x ? Ok(nothing) : Err(KeyError(:b));
+
+julia&gt; f2(x) = f1(x);
+
+julia&gt; f3(x) = f2(x);</code></pre><p>Since Try.jl represents an error simply as a Julia value, there is no information on the source of this error by default:</p><pre><code class="language-JULIA hljs">julia&gt; f3(false)
+Try.Err: KeyError: key :b not found</code></pre><p>We can enable the stacktrace recording of the error by calling  <code>Try.enable_errortrace()</code>.</p><pre><code class="language-JULIA hljs">julia&gt; Try.enable_errortrace();
+
+julia&gt; y = f3(false)
+Try.Err: KeyError: key :b not found
+Stacktrace:
+ [1] f1
+   @ ./REPL[2]:1 [inlined]
+ [2] f2
+   @ ./REPL[3]:1 [inlined]
+ [3] f3(x::Bool)
+   @ Main ./REPL[4]:1
+ [4] top-level scope
+   @ REPL[7]:1
+
+julia&gt; Try.disable_errortrace();</code></pre><p>Note that <code>f3</code> didn&#39;t throw an exception. It returned a value of type <code>Err</code>:</p><pre><code class="language-JULIA hljs">julia&gt; Try.iserr(y)
+true
+
+julia&gt; Try.unwrap_err(y)
+KeyError(:b)</code></pre><p>That is to say, the stacktrace is simply attached as &quot;metadata&quot; and <code>Try.enable_errortrace()</code> does not alter how <code>Err</code> values behave.</p><p><strong>Limitation/implementation details</strong>: To eliminate the cost of stacktrace capturing when it is not used, <code>Try.enable_errortrace()</code> is implemented using method invalidation. Thus, error trace cannot be enabled for <code>Task</code>s that have been already started.</p><p><strong>EAFP</strong></p><p>As explained in <a href="#eafp-and-traits">EAFP and traits</a> below, the <code>Base</code>-like API defined in <code>TryExperimental</code> does not throw when the method is not defined.  For example, <code>trygeteltype</code> and <code>trygetlength</code> can be called on arbitrary objects (= &quot;asking for forgiveness&quot;) without checking if the method is defined (= &quot;asking for permission&quot;).</p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+function try_map_prealloc(f, xs)
+    T = @? trygeteltype(xs)  # macro-based short-circuiting
+    n = @? trygetlength(xs)
+    ys = Vector{T}(undef, n)
+    for (i, x) in zip(eachindex(ys), xs)
+        ys[i] = f(x)
+    end
+    return Ok(ys)
+end
+
+mymap(f, xs) =
+    try_map_prealloc(f, xs) |&gt;
+    Try.or_else() do _  # functional composition
+        Ok(mapfoldl(f, push!, xs; init = []))
+    end |&gt;
+    Try.unwrap
+
+mymap(x -&gt; x + 1, 1:3)
+
+# output
+3-element Vector{Int64}:
+ 2
+ 3
+ 4</code></pre><pre><code class="language-julia hljs">mymap(x -&gt; x + 1, (x for x in 1:5 if isodd(x)))
+
+# output
+3-element Vector{Any}:
+ 2
+ 4
+ 6</code></pre><p><strong>Success/failure path elimination</strong></p><p>Function using Try.jl for error handling (such as <code>Try.first</code>) typically has a return type of <code>Union{Ok,Err}</code>. Thus, the compiler can sometimes prove that some success and failure paths can never be taken:</p><pre><code class="language-julia-repl hljs">julia&gt; using TryExperimental, InteractiveUtils
+
+julia&gt; @code_typed(trygetfirst((111, &quot;two&quot;, :three)))[2]  # always succeeds for non empty tuples
+Ok{Int64}
+
+julia&gt; @code_typed(trygetfirst(()))[2]  # always fails for an empty tuple
+Err{BoundsError}
+
+julia&gt; @code_typed(trygetfirst(Int[]))[2]  # both are possible for an array
+Union{Ok{Int64}, Err{BoundsError}}</code></pre><p><strong>Constraining returnable errors</strong></p><p>We can use the return type conversion <code>function f(...)::ReturnType ...  end</code> to constrain possible error types. This is similar to the <code>throws</code> keyword in Java.</p><p>This can be used for ensuring that only the expected set of errors are returned from Try.jl-based functions.  In particular, it may be useful for restricting possible errors at an API boundary.  The idea is to separate &quot;call API&quot; <code>f</code> from &quot;overload API&quot; <code>__f__</code> such that new methods are added to <code>__f__</code> and not to <code>f</code>.  We can then wrap the overload API function by the call API function that simply declares the return type:</p><pre><code class="language-Julia hljs">f(args...)::Result{Any,PossibleErrors} = __f__(args...)</code></pre><p>Then, the API specification of <code>f</code> can include the overloading instruction explaining that a method of <code>__f__</code> (instead of <code>f</code>) should be defined and can enumerate allowed set of errors.</p><p>Here is an example of a call API <code>tryparse</code> with an overload API <code>__tryparse__</code> wrapping <code>Base.tryparase</code>.  In this toy example, <code>__tryparse__</code> can return <code>InvalidCharError()</code> or <code>EndOfBufferError()</code> as an error value:</p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+const Result{T,E} = Union{Ok{&lt;:T},Err{&lt;:E}}
+# using TryExperimental: Result  # (almost equivalent)
+
+struct InvalidCharError &lt;: Exception end
+struct EndOfBufferError &lt;: Exception end
+
+const ParseError = Union{InvalidCharError, EndOfBufferError}
+
+tryparse(T, str)::Result{T,ParseError} = __tryparse__(T, str)
+
+function __tryparse__(::Type{Int}, str::AbstractString)
+    isempty(str) &amp;&amp; return Err(EndOfBufferError())
+    Ok(@something(Base.tryparse(Int, str), return Err(InvalidCharError())))
+end
+
+tryparse(Int, &quot;111&quot;)
+
+# output
+Try.Ok: 111</code></pre><pre><code class="language-julia hljs">tryparse(Int, &quot;&quot;)
+
+# output
+Try.Err: EndOfBufferError()</code></pre><pre><code class="language-julia hljs">tryparse(Int, &quot;one&quot;)
+
+# output
+Try.Err: InvalidCharError()</code></pre><p>Constraining errors can be useful for generic programming if it is desirable to ensure that error handling is complete.  This pattern makes it easy to <em>report invalid errors directly to the programmer</em> (see <a href="#when-to-throw-when-to-return">When to <code>throw</code>? When to <code>return</code>?</a>) while correctly implemented methods do not incur any run-time overheads.</p><p>See also: <a href="https://github.com/JuliaLang/julia/issues/7026">julep: &quot;chain of custody&quot; error handling · Issue #7026 · JuliaLang/julia</a></p><p><strong>Discussion</strong></p><p>Julia is a dynamic language with a compiler that can aggressively optimize away the dynamism to get the performance comparable to static languages.  As such, many successful features of Julia provide the usability of a dynamic language while paying attentions to the optimizability of the composed code.  However, native <code>throw</code>/<code>catch</code>-based exception is not optimized aggressively and existing &quot;static&quot; solutions do not support idiomatic high-level style of programming. Try.jl explores <a href="https://xkcd.com/927/">an alternative solution</a> embracing the dynamism of Julia while restricting the underlying code as much as possible to the form that the compiler can optimize away.</p><p><strong>Focus on <em>actions</em>; not the types</strong></p><p>Try.jl aims at providing generic tools for composing failable procedures.  This emphasis on performing <em>actions</em> that can fail contrasts with other <a href="#similar-packages">similar Julia packages</a> focusing on types and is reflected in the name of the package: <em>Try</em>.  This is an important guideline on designing APIs for dynamic programming languages like Julia in which high-level code should be expressible without managing types.</p><p>For example, Try.jl provides <a href="https://juliapreludes.github.io/Try.jl/dev/#Short-circuit-evaluation">the APIs for short-circuit evaluation</a> that can be used not only for <code>Union{Ok,Err}</code>:</p><pre><code class="language-julia-repl hljs">julia&gt; Try.and_then(Ok(1)) do x
+           Ok(x + 1)
+       end
+Try.Ok: 2
+
+julia&gt; Try.and_then(Ok(1)) do x
+           iszero(x) ? Ok(x) : Err(&quot;not zero&quot;)
+       end
+Try.Err: &quot;not zero&quot;</code></pre><p>but also for <code>Union{Some,Nothing}</code>:</p><pre><code class="language-julia-repl hljs">julia&gt; Try.and_then(Some(1)) do x
+           Some(x + 1)
+       end
+Some(2)
+
+julia&gt; Try.and_then(Some(1)) do x
+           iszero(x) ? Some(x) : nothing
+       end</code></pre><p>Above code snippets mention constructors <code>Ok</code>, <code>Err</code>, and <code>Some</code> just enough for conveying information about &quot;success&quot; and &quot;failure.&quot;</p><p>Of course, in Julia, types can be used for controlling execution efficiently and flexibly. In fact, the mechanism required for various short-circuit evaluation can be used for arbitrary user-defined types by defining <a href="https://juliapreludes.github.io/Try.jl/dev/experimental/#customize-short-circuit">the short-circuit evaluation interface</a> (experimental).</p><p><strong>Dynamic returned value types for maximizing optimizability</strong></p><p>Try.jl provides an API inspired by Rust&#39;s <code>Result</code> type and <code>Try</code> trait.  However, to fully unlock the power of Julia, Try.jl uses the <em>small <code>Union</code> types</em> instead of a concretely typed <code>struct</code> type.  This is essential for idiomatic clean high-level Julia code that avoids computing output type manually.  However, all previous attempts in this space (such as <a href="https://github.com/jakobnissen/ErrorTypes.jl">ErrorTypes.jl</a>, <a href="https://github.com/iamed2/ResultTypes.jl">ResultTypes.jl</a>, and <a href="https://github.com/KristofferC/Expect.jl">Expect.jl</a>) use a <code>struct</code> type for representing the result value (see <a href="https://github.com/jakobnissen/ErrorTypes.jl/blob/c3a7d529716ebfa3ee956049f77f606b6c00700b/src/ErrorTypes.jl#L45-L47"><code>ErrorTypes.Result</code></a>, <a href="https://github.com/iamed2/ResultTypes.jl/blob/42ebadf4d859964efa36ebccbeed3d5b65f3e9d9/src/ResultTypes.jl#L5-L8"><code>ResultTypes.Result</code></a>, and <a href="https://github.com/KristofferC/Expect.jl/blob/6834049306c2b53c1666cbed504655e36b56e3b4/src/Expect.jl#L6-L9"><code>Expect.Expected</code></a>). Using a concretely typed <code>struct</code> as returned type has some benefits in that it is easy to control the result of type inference.  However, this forces the user to manually compute the type of the untaken paths.  This is tedious and sometimes simply impossible.  This is also not idiomatic Julia code which typically delegates output type computation to the compiler.  Futhermore, the benefit of type-stabilization is at the cost of loosing the opportunity for the compiler to eliminate the success and/or failure branches (see <a href="#successfailure-path-elimination">Success/failure path elimination</a> above).  A similar optimization can still happen in principle with the concrete <code>struct</code> approach with the combination of (post-inference) inlining, scalar replacement of aggregate, and dead code elimination.  However, since type inference is the main driving force in the inter-procedural analysis and optimization in the Julia compiler, <code>Union</code> return type is likely to continue to be the most effective way to communicate the intent of the code to the compiler (e.g., if a function call always succeeds, always return an <code>Ok{T}</code>).</p><p>(That said, Try.jl also contains supports for concretely-typed returned value when <code>Union</code> is not appropriate. This is for experimenting if such a manual &quot;type-instability-hiding&quot; is a viable approach at a large scale and if providing a pleasing uniform API is possible.)</p><p><strong>Debuggable error handling</strong></p><p>A potential usability issue for using the <code>Result</code> type is that the detailed context of the error is lost by the time the user received an error.  This makes debugging Julia programs hard compared to simply <code>throw</code>ing the exception.  To mitigate this problem, Try.jl provides an <em>error trace</em> mechanism for recording the backtrace of the error.  This can be toggled using <code>Try.enable_errortrace()</code> at the run-time.  This is inspired by Zig&#39;s <a href="https://ziglang.org/documentation/master/#Error-Return-Traces">Error Return Traces</a>.</p><p><strong>EAFP and traits</strong></p><p>TryExperiments.jl implements a limited set of &quot;verbs&quot; based on Julia <code>Base</code> such as <code>trytake!</code> as a demonstration of Try.jl API.  These functions have a catch-all default definition that returns an error value of type <code>Err{&lt;:NotImplementedError}</code>.  This lets us use these functions in the <a href="https://docs.python.org/3/glossary.html#term-EAFP">&quot;Easier to ask for forgiveness than permission&quot; (EAFP)</a> manner because they can be called without getting the run-time <code>MethodError</code> exception. Importantly, the EAFP approach does not have the problem of the trait-based feature detection where the implementer must ensure that declared trait (e.g., <code>HasLength</code>) is compatible with the actual definition (e.g., <code>length</code>).  With the EAFP approach, <em>the feature is declared automatically by defining of the method providing it</em> (e.g., <code>trygetlength</code>).  Thus, by construction, it is hard to make the feature declaration and definition out-of-sync.  Of course, this approach works only for effect-free or &quot;redo-able&quot; functions when naively applied.  To check if a sequence of destructive operations is possible, the trait-based approach is very straightforward.  One way to use the EAFP approach for effectful computations is to create a low-level two-phase API where the first phase constructs a recipe of how to apply the effects in an EAFP manner and the second phase applies the effect.</p><p>(Usage notes: An &quot;EAFP-compatible&quot; function can be declared with <code>@tryable f</code> instead of <code>function f end</code>.  It automatically defines a catch-all fallback method that returns an <code>Err{&lt;:NotImplementedError}</code>.)</p><p><strong>Side notes on <code>hasmethod</code> and <code>applicable</code> (and <code>invoke</code>)</strong></p><p>Note that the EAFP approach using Try.jl is not equivalent to the <a href="https://docs.python.org/3/glossary.html#term-LBYL">&quot;Look before you leap&quot; (LBYL)</a> counterpart using <code>hasmethod</code> and/or <code>applicable</code>.  Checking <code>applicable(f, x)</code> before calling <code>f(x)</code> may look attractive as it can be done without any manual coding.  However, this LBYL approach is fundamentally unusable for generic feature detection.  This is because <code>hasmethod</code> and <code>applicable</code> cannot handle &quot;blanket definition&quot; with &quot;internal dispatch&quot; like this:</p><pre><code class="language-julia-repl hljs">julia&gt; f(x::Real) = f_impl(x);  # blanket definition
+
+julia&gt; f_impl(x::Int) = x + 1;  # internal dispatch
+
+julia&gt; applicable(f, 0.1)
+true
+
+julia&gt; hasmethod(f, Tuple{Float64})
+true</code></pre><p>Notice that <code>f(0.1)</code> is considered callable if we trust <code>applicable</code> or <code>hasmethod</code> even though <code>f(0.1)</code> will throw a <code>MethodError</code>.  Thus, unless the overload instruction of <code>f</code> specifically forbids the blanket definition like above, the result of <code>applicable</code> and <code>hasmethod</code> cannot be trusted.  (For exactly the same reason, the use of <code>invoke</code> on library functions is problematic.)</p><p>The EAFP approach works because the actual code path &quot;dynamically declares&quot; the feature.</p><p><strong>When to <code>throw</code>? When to <code>return</code>?</strong></p><p>Having two modes of error reporting (i.e., <code>throw</code>ing an exception and  <code>return</code>ing an <code>Err</code> value) introduces a complexity that must be justified.  Is Try.jl just a workaround until the compiler can optimize <code>try</code>-<code>catch</code>?   (&quot;Yes&quot; may be a reasonable answer.)  Or is there a principled way to distinguish the use cases of them?  (This is what is explored here.)</p><p>Reporting error by <code>return</code>ing an <code>Err</code> value is particularly useful when an error handling occurs in a tight loop.  For example, when composing concurrent data structure APIs, it is sometimes required to know the failure mode (e.g., logical vs temporary/contention failures) in a tight loop. It is likely that Julia compiler can optimize Try.jl&#39;s error handling down to a simple flag-based low-level code. Note that this style of programming requires a clear definition of the API noting on what conditions certain errors are reported. That is to say, such an API guarantees the detection of certain unsatisfied &quot;pre-conditions&quot; and the caller <em>program</em> is expected to have some ways to recover from these errors.</p><p>In contrast, if there is no way for the caller program to recover from the error and the error should be reported to a <em>human</em>, <code>throw</code>ing an exception is more appropriate.  For example, if an inconsistency of the internal state of a data structure is detected, it is likely a bug in the usage or implementation. In this case, there is no way for the caller program to recover from such an out-of-contract error and only the human programmer can take an action.  To support typical interactive workflow in Julia, printing an error and aborting the whole program is not an option.  Thus, it is crucial that it is possible to recover even from an out-of-contract error in Julia.  Such a language construct is required for building programming tools such as REPL and editor plugins.  In summary, <code>return</code>-based error reporting is adequate for recoverable errors and <code>throw</code>-based error reporting is adequate for unrecoverable (i.e., programmer&#39;s) errors.</p><p><strong>Links</strong></p><p><strong>Similar packages</strong></p><ul><li><a href="https://github.com/jakobnissen/ErrorTypes.jl">ErrorTypes.jl</a></li><li><a href="https://github.com/iamed2/ResultTypes.jl">ResultTypes.jl</a></li><li><a href="https://github.com/KristofferC/Expect.jl">Expect.jl</a></li></ul><p><strong>Other discussions</strong></p><ul><li><a href="https://github.com/JuliaLang/julia/discussions/43773">Can we have result value convention for fast error handling? · Discussion #43773 · JuliaLang/julia</a></li><li><a href="https://julialang.zulipchat.com/#narrow/stream/137791-general/topic/Try.2Ejl">Try.jl - JuliaLang - Zulip</a></li><li><a href="https://discourse.julialang.org/t/ann-errortypes-jl-rust-like-safe-errors-in-julia/53953">[ANN] ErrorTypes.jl - Rust-like safe errors in Julia - Package Announcements / Package announcements - JuliaLang</a></li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/README.md#L1-L475">source</a></section></article><h2 id="Result-value-manipulation-API"><a class="docs-heading-anchor" href="#Result-value-manipulation-API">Result value manipulation API</a><a id="Result-value-manipulation-API-1"></a><a class="docs-heading-anchor-permalink" href="#Result-value-manipulation-API" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="Try.Ok" href="#Try.Ok"><code>Try.Ok</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Ok(value::T) -&gt; ok::Ok{T}
+Ok{T}(value) -&gt; ok::Ok{T}</code></pre><p>Indicate that <code>value</code> is a &quot;success&quot; in a sense defined by the API returning this value.</p><p>See also: <a href="#Try.isok"><code>isok</code></a>, <a href="#Try.unwrap"><code>unwrap</code></a></p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; result = Ok(1)
+Try.Ok: 1
+
+julia&gt; Try.unwrap(result)
+1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/Ok.md#L1-L19">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.Err" href="#Try.Err"><code>Try.Err</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Err(value::E) -&gt; err::Err{E}
+Err{E}(value) -&gt; err::Err{E}</code></pre><p>Indicate that <code>value</code> is a &quot;failure&quot; in a sense defined by the API returning this value.</p><p>See: <a href="#Try.iserr"><code>iserr</code></a>, <a href="#Try.unwrap_err"><code>unwrap_err</code></a></p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; result = Err(1)
+Try.Err: 1
+
+julia&gt; Try.unwrap_err(result)
+1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/Err.md#L1-L19">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.isok" href="#Try.isok"><code>Try.isok</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.isok(::Ok) -&gt; true
+Try.isok(::Err) -&gt; false</code></pre><p>Return <code>true</code> on an <a href="#Try.Ok"><code>Ok</code></a>; return <code>false</code> on an <a href="#Try.Err"><code>Err</code></a>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.isok(Try.Ok(1))
+true
+
+julia&gt; Try.isok(Try.Err(1))
+false</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/isok.md#L1-L17">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.iserr" href="#Try.iserr"><code>Try.iserr</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.iserr(::Err) -&gt; true
+Try.iserr(::Ok) -&gt; false</code></pre><p>Return <code>true</code> on an <a href="#Try.Err"><code>Err</code></a>; return <code>false</code> on an <a href="#Try.Ok"><code>Ok</code></a>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.iserr(Try.Err(1))
+true
+
+julia&gt; Try.iserr(Try.Ok(1))
+false</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/iserr.md#L1-L17">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.unwrap" href="#Try.unwrap"><code>Try.unwrap</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.unwrap(Ok(value)) -&gt; value
+Try.unwrap(::Err)  # throws</code></pre><p>Unwrap an <a href="#Try.Ok"><code>Ok</code></a> value; throws on an <a href="#Try.Err"><code>Err</code></a>.</p><p>To obtain a stack trace to the place <code>Err</code> is constructed (and not where <code>unwrap</code> is called), use <a href="#Try.enable_errortrace"><code>Try.enable_errortrace</code></a>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.unwrap(Try.Ok(1))
+1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/unwrap.md#L1-L17">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.unwrap_err" href="#Try.unwrap_err"><code>Try.unwrap_err</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.unwrap_err(Err(value)) -&gt; value
+Try.unwrap_err(::Ok)  # throws</code></pre><p>Unwrap an <a href="#Try.Err"><code>Err</code></a> value; throws on an <a href="#Try.Ok"><code>Ok</code></a>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.unwrap_err(Try.Err(1))
+1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/unwrap_err.md#L1-L14">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.oktype" href="#Try.oktype"><code>Try.oktype</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.oktype(::Type{Ok{T}}) -&gt; T::Type
+Try.oktype(::Ok{T}) -&gt; T::Type</code></pre><p>Get the type of the value stored in an <code>Ok</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.oktype(Ok{Symbol})
+Symbol
+
+julia&gt; Try.oktype(Ok(:a))
+Symbol</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/oktype.md#L1-L17">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.errtype" href="#Try.errtype"><code>Try.errtype</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.errtype(::Type{Err{E}}) -&gt; E::Type
+Try.errtype(::Err{E}) -&gt; E::Type</code></pre><p>Get the type of the value stored in an <code>Err</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using Try
+
+julia&gt; Try.errtype(Err{Symbol})
+Symbol
+
+julia&gt; Try.errtype(Err(:a))
+Symbol</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/errtype.md#L1-L17">source</a></section></article><h2 id="Short-circuit-evaluation"><a class="docs-heading-anchor" href="#Short-circuit-evaluation">Short-circuit evaluation</a><a id="Short-circuit-evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Short-circuit-evaluation" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="Try.@?" href="#Try.@?"><code>Try.@?</code></a> — <span class="docstring-category">Macro</span></header><section><div><pre><code class="language-julia hljs">@? result</code></pre><p>Evaluates to an unwrapped &quot;success&quot; result value; return <code>result</code> if it is a &quot;failure.&quot;</p><p>If <code>result</code> is an <code>Ok</code> or a <code>Some</code>, <code>@?</code> is equivalent to unwrapping the value.  If <code>result</code> is an <code>Err</code> or <code>nothing</code>, <code>@?</code> is equivalent to <code>return</code>.</p><table><tr><th style="text-align: left">Invocation</th><th style="text-align: left">Equivalent code</th></tr><tr><td style="text-align: left"><code>@? Ok(value)</code></td><td style="text-align: left"><code>value</code></td></tr><tr><td style="text-align: left"><code>@? Err(value)</code></td><td style="text-align: left"><code>return value</code></td></tr><tr><td style="text-align: left"><code>@? Some(value)</code></td><td style="text-align: left"><code>value</code></td></tr><tr><td style="text-align: left"><code>@? nothing</code></td><td style="text-align: left"><code>return nothing</code></td></tr></table><p>See also: <a href="#Try.@and_return"><code>@and_return</code></a>, <a href="#Try.and_then"><code>and_then</code></a>, <a href="#Try.or_else"><code>or_else</code></a>.</p><p><strong>Extended help</strong></p><p><strong>Examples</strong></p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+function try_map_prealloc(f, xs)
+    T = @? trygeteltype(xs)  # macro-based short-circuiting
+    n = @? trygetlength(xs)
+    ys = Vector{T}(undef, n)
+    for (i, x) in zip(eachindex(ys), xs)
+        ys[i] = f(x)
+    end
+    return Ok(ys)
+end
+
+Try.unwrap(try_map_prealloc(x -&gt; x + 1, 1:3))
+
+# output
+3-element Vector{Int64}:
+ 2
+ 3
+ 4</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/@?.md#L1-L43">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.@and_return" href="#Try.@and_return"><code>Try.@and_return</code></a> — <span class="docstring-category">Macro</span></header><section><div><pre><code class="language-julia hljs">Try.@and_return result -&gt; result′</code></pre><p>Evaluate <code>f(value)</code> if <code>result</code> is a &quot;success&quot; wrapping a <code>value</code>; otherwise, a &quot;failure&quot; <code>value</code> as-is.</p><table><tr><th style="text-align: left">Invocation</th><th style="text-align: left">Equivalent code</th></tr><tr><td style="text-align: left"><code>@and_return Ok(value)</code></td><td style="text-align: left"><code>value</code></td></tr><tr><td style="text-align: left"><code>@and_return err::Err</code></td><td style="text-align: left"><code>return err</code></td></tr><tr><td style="text-align: left"><code>@and_return Some(value)</code></td><td style="text-align: left"><code>value</code></td></tr><tr><td style="text-align: left"><code>@and_return nothing</code></td><td style="text-align: left"><code>return nothing</code></td></tr></table><p>See also: <a href="#Try.@?"><code>@?</code></a> <a href="#Try.and_then"><code>and_then</code></a>, <a href="#Try.or_else"><code>or_else</code></a>.</p><p><strong>Extended help</strong></p><p><strong>Examples</strong></p><p>Let&#39;s define a function <code>nitems</code> that works like <code>length</code> but falls back to iteration-based counting:</p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+function trygetnitems(xs)
+    Try.@and_return trygetlength(xs)
+    Ok(count(Returns(true), xs))
+end
+
+nitems(xs) = Try.unwrap(trygetnitems(xs))
+
+nitems(1:3)
+
+# output
+3</code></pre><p><code>nitems</code> works with arbitrary iterator, including the ones that does not have <code>length</code>:</p><pre><code class="language-julia hljs">ch = foldl(push!, 1:3; init = Channel{Int}(3))
+close(ch)
+
+nitems(ch)
+
+# output
+3</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/@and_return.md#L1-L50">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.or_else" href="#Try.or_else"><code>Try.or_else</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.or_else(f, result) -&gt; result′
+Try.or_else(f) -&gt; result -&gt; result′</code></pre><p>Return <code>result</code> as-is if it is a &quot;successful&quot; value; otherwise, unwrap a &quot;failure&quot; value in <code>result</code> and then evaluate <code>f</code> on it.</p><table><tr><th style="text-align: left">Invocation</th><th style="text-align: left">Equivalent code</th></tr><tr><td style="text-align: left"><code>or_else(f, ok::Ok)</code></td><td style="text-align: left"><code>ok</code></td></tr><tr><td style="text-align: left"><code>or_else(f, Err(value))</code></td><td style="text-align: left"><code>f(value)</code></td></tr><tr><td style="text-align: left"><code>or_else(f, some::Some)</code></td><td style="text-align: left"><code>some</code></td></tr><tr><td style="text-align: left"><code>or_else(f, nothing)</code></td><td style="text-align: left"><code>f(nothing)</code></td></tr></table><p>See also: <a href="#Try.@?"><code>@?</code></a> <a href="#Try.@and_return"><code>@and_return</code></a>, <a href="#Try.and_then"><code>and_then</code></a>.</p><p><strong>Extended help</strong></p><p><strong>Examples</strong></p><p>Let&#39;s define a function <code>nitems</code> that works like <code>length</code> but falls back to iteration-based counting:</p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+nitems(xs) =
+    Try.or_else(trygetlength(xs)) do _
+        Ok(count(Returns(true), xs))
+    end |&gt; Try.unwrap
+
+nitems(1:3)
+
+# output
+3</code></pre><p><code>nitems</code> works with arbitrary iterator, including the ones that does not have <code>length</code>:</p><pre><code class="language-julia hljs">ch = foldl(push!, 1:3; init = Channel{Int}(3))
+close(ch)
+
+nitems(ch)
+
+# output
+3</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/or_else.md#L1-L49">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.and_then" href="#Try.and_then"><code>Try.and_then</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.and_then(f, result) -&gt; result′
+Try.and_then(f) -&gt; result -&gt; result′</code></pre><p>Evaluate <code>f(value)</code> if <code>result</code> is a &quot;success&quot; wrapping a <code>value</code>; otherwise, a &quot;failure&quot; <code>value</code> as-is.</p><table><tr><th style="text-align: left">Invocation</th><th style="text-align: left">Equivalent code</th></tr><tr><td style="text-align: left"><code>and_then(f, Ok(value))</code></td><td style="text-align: left"><code>f(value)</code></td></tr><tr><td style="text-align: left"><code>and_then(f, err::Err)</code></td><td style="text-align: left"><code>err</code></td></tr><tr><td style="text-align: left"><code>and_then(f, Some(value))</code></td><td style="text-align: left"><code>f(value)</code></td></tr><tr><td style="text-align: left"><code>and_then(f, nothing)</code></td><td style="text-align: left"><code>nothing</code></td></tr></table><p>See also: <a href="#Try.@?"><code>@?</code></a> <a href="#Try.@and_return"><code>@and_return</code></a>, <a href="#Try.or_else"><code>or_else</code></a>.</p><p><strong>Extended help</strong></p><p><strong>Examples</strong></p><pre><code class="language-julia hljs">using Try, TryExperimental
+
+try_map_prealloc(f, xs) =
+    Try.and_then(trygetlength(xs)) do n
+        Try.and_then(trygeteltype(xs)) do T
+            ys = Vector{T}(undef, n)
+            for (i, x) in zip(eachindex(ys), xs)
+                ys[i] = f(x)
+            end
+            return Ok(ys)
+        end
+    end
+
+Try.unwrap(try_map_prealloc(x -&gt; x + 1, 1:3))
+
+# output
+3-element Vector{Int64}:
+ 2
+ 3
+ 4</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/and_then.md#L1-L43">source</a></section></article><p>See also: <a href="experimental/#customize-short-circuit">Customizing short-circuit evaluation</a>.</p><h2 id="Debugging-interface-(error-traces)"><a class="docs-heading-anchor" href="#Debugging-interface-(error-traces)">Debugging interface (error traces)</a><a id="Debugging-interface-(error-traces)-1"></a><a class="docs-heading-anchor-permalink" href="#Debugging-interface-(error-traces)" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="Try.enable_errortrace" href="#Try.enable_errortrace"><code>Try.enable_errortrace</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.enable_errortrace()</code></pre><p>Enable stack trace capturing for each <code>Err</code> value creation for debugging.</p><p>See also: <a href="#Try.disable_errortrace"><code>Try.disable_errortrace</code></a></p><p><strong>Examples</strong></p><pre><code class="language-JULIA hljs">julia&gt; using Try, TryExperimental
+
+julia&gt; trypush!(Int[], :a)
+Try.Err: Not Implemented: tryconvert(Int64, :a)
+
+julia&gt; Try.enable_errortrace();
+
+julia&gt; trypush!(Int[], :a)
+Try.Err: Not Implemented: tryconvert(Int64, :a)
+Stacktrace:
+ [1] convert
+   @ ~/.julia/dev/Try/src/core.jl:28 [inlined]
+ [2] Break (repeats 2 times)
+   @ ~/.julia/dev/Try/src/branch.jl:11 [inlined]
+ [3] branch
+   @ ~/.julia/dev/Try/src/branch.jl:27 [inlined]
+ [4] macro expansion
+   @ ~/.julia/dev/Try/src/branch.jl:49 [inlined]
+ [5] (::TryExperimental.var&quot;##typeof_trypush!#298&quot;)(a::Vector{Int64}, x::Symbol)
+   @ TryExperimental.Internal ~/.julia/dev/Try/lib/TryExperimental/src/base.jl:69
+ [6] top-level scope
+   @ REPL[4]:1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/enable_errortrace.md#L1-L33">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Try.disable_errortrace" href="#Try.disable_errortrace"><code>Try.disable_errortrace</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">Try.disable_errortrace()</code></pre><p>Disable stack trace capturing.</p><p>See also: <a href="#Try.enable_errortrace"><code>Try.enable_errortrace</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaPreludes/Try.jl/blob/7986efd7f4399e59a0d76da3d47596d584cec3cb/src/docs/disable_errortrace.md#L1-L7">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="experimental/">Experimental »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Wednesday 6 April 2022 08:55">Wednesday 6 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
