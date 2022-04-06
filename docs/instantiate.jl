@@ -14,12 +14,12 @@ Pkg.develop([
     PackageSpec(
         name = "Try",
         path = dirname(@__DIR__),
-        # url = "https://github.com/tkf/Try.jl.git",
+        # url = "https://github.com/JuliaPreludes/Try.jl.git",
     ),
     PackageSpec(
         name = "TryExperimental",
         path = dirname(@__DIR__),
-        # url = "https://github.com/tkf/Try.jl.git",
+        # url = "https://github.com/JuliaPreludes/Try.jl.git",
         subdir = "lib/TryExperimental",
     ),
 ])

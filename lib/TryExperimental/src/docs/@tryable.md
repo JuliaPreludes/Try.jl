@@ -10,7 +10,7 @@ fn(args...; kwargs...) = Err(NotImplementedError(fn, args, values(kwargs)))
 ```
 
 (and auxiliary methods like [`istryable`](@ref TryExperimental.istryable)) to help the
-["Easier to ask for forgiveness than permission" (EAFP)](https://github.com/tkf/Try.jl#eafp)
+["Easier to ask for forgiveness than permission" (EAFP)](https://github.com/JuliaPreludes/Try.jl#eafp)
 approach.
 
 See also: [`istryable`](@ref TryExperimental.istryable).

@@ -1,7 +1,7 @@
 # Try.jl: zero-overhead and debuggable error handling
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tkf.github.io/Try.jl/dev)
-[![CI](https://github.com/tkf/Try.jl/actions/workflows/test.yml/badge.svg)](https://github.com/tkf/Try.jl/actions/workflows/test.yml)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliapreludes.github.io/Try.jl/dev)
+[![CI](https://github.com/JuliaPreludes/Try.jl/actions/workflows/test.yml/badge.svg)](https://github.com/JuliaPreludes/Try.jl/actions/workflows/test.yml)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 Features:
@@ -17,7 +17,7 @@ Features:
 
 For more explanation, see [Discussion](#discussion) below.
 
-See the [Documentation](https://tkf.github.io/Try.jl/dev/) for API reference.
+See the [Documentation](https://juliapreludes.github.io/Try.jl/dev/) for API reference.
 
 ## Examples
 
@@ -67,7 +67,7 @@ julia> Try.unwrap_err(err)
 KeyError(:b)
 ```
 
-and [more](https://tkf.github.io/Try.jl/dev/).
+and [more](https://juliapreludes.github.io/Try.jl/dev/).
 
 ### Error trace
 
@@ -289,7 +289,7 @@ packages](#similar-packages) focusing on types and is reflected in the name of t
 like Julia in which high-level code should be expressible without managing types.
 
 For example, Try.jl provides [the APIs for short-circuit
-evaluation](https://tkf.github.io/Try.jl/dev/#Short-circuit-evaluation) that can be used not
+evaluation](https://juliapreludes.github.io/Try.jl/dev/#Short-circuit-evaluation) that can be used not
 only for `Union{Ok,Err}`:
 
 ```julia
@@ -323,7 +323,7 @@ information about "success" and "failure."
 Of course, in Julia, types can be used for controlling execution efficiently and flexibly.
 In fact, the mechanism required for various short-circuit evaluation can be used for
 arbitrary user-defined types by defining [the short-circuit evaluation
-interface](https://tkf.github.io/Try.jl/dev/experimental/#customize-short-circuit)
+interface](https://juliapreludes.github.io/Try.jl/dev/experimental/#customize-short-circuit)
 (experimental).
 
 ### Dynamic returned value types for maximizing optimizability
