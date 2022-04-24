@@ -1,14 +1,12 @@
-    Try.@and_return result -> result′
+    Try.@return result
 
-Evaluate `f(value)` if `result` is a "success" wrapping a `value`; otherwise, a "failure"
-`value` as-is.
 
-| Invocation                | Equivalent code  |
-|:---                       |:---              |
-| `@and_return Ok(value)`   | `value`          |
-| `@and_return err::Err`    | `return err`     |
-| `@and_return Some(value)` | `value`          |
-| `@and_return nothing`     | `return nothing` |
+| Invocation            | Equivalent code  |
+|:---                   |:---              |
+| `@return Ok(value)`   | `return value`   |
+| `@return Err(value)`  | `value`          |
+| `@return Some(value)` | `return value`   |
+| `@return nothing`     | `nothing`        |
 
 See also: [`@?`](@ref) [`and_then`](@ref), [`or_else`](@ref).
 
@@ -22,12 +20,10 @@ counting:
 ```julia
 using Try, TryExperimental
 
-function trygetnitems(xs)
-    Try.@and_return trygetlength(xs)
-    Ok(count(Returns(true), xs))
+function nitems(xs)
+    Try.@return trygetlength(xs)
+    count(Returns(true), xs)
 end
-
-nitems(xs) = Try.unwrap(trygetnitems(xs))
 
 nitems(1:3)
 
@@ -46,4 +42,3 @@ nitems(ch)
 # output
 3
 ```
-
