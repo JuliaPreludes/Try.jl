@@ -1,16 +1,17 @@
-    Try.@and_return result -> result′
+    Try.@and_return result
 
-Evaluate `f(value)` if `result` is a "success" wrapping a `value`; otherwise, a "failure"
-`value` as-is.
+Evaluate to a "success" value or `return` a "failure" value.
+
+Use [`@return`](@ref) to return unwrapped value.
 
 | Invocation                | Equivalent code  |
 |:---                       |:---              |
-| `@and_return Ok(value)`   | `value`          |
-| `@and_return err::Err`    | `return err`     |
-| `@and_return Some(value)` | `value`          |
-| `@and_return nothing`     | `return nothing` |
+| `@and_return ok::Ok`      | `return ok`      |
+| `@and_return Err(value)`  | `value`          |
+| `@and_return some::Some`  | `return some`    |
+| `@and_return nothing`     | `nothing`        |
 
-See also: [`@?`](@ref) [`and_then`](@ref), [`or_else`](@ref).
+See also: [`@?`](@ref), [`@return`](@ref), [`and_then`](@ref), [`or_else`](@ref).
 
 # Extended help
 
