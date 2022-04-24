@@ -89,7 +89,7 @@ function Try.unwrap_or_else(f, result)
     if br isa Break
         f(valueof(br))
     else
-        valueof(br.result)
+        valueof(br)
     end
 end
 
