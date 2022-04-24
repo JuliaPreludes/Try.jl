@@ -39,6 +39,7 @@ function var"@?" end
 
 function and_then end
 function or_else end
+function unwrap_or_else end
 
 module Internal
 

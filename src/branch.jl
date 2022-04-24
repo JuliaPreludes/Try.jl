@@ -66,12 +66,6 @@ macro and_return(ex)
     end
 end
 
-function Try.and_then(f::F) where {F}
-    function and_then_closure(result)
-        Try.and_then(f, result)
-    end
-end
-
 function Try.and_then(f, result)
     br = branch(result)
     if br isa Continue
@@ -81,17 +75,44 @@ function Try.and_then(f, result)
     end
 end
 
-function Try.or_else(f::F) where {F}
-    function or_else_closure(result)
-        Try.or_else(f, result)
-    end
-end
-
 function Try.or_else(f, result)
     br = branch(result)
     if br isa Break
         f(valueof(br))
     else
         br.result
+    end
+end
+
+function Try.unwrap_or_else(f, result)
+    br = branch(result)
+    if br isa Break
+        f(valueof(br))
+    else
+        valueof(br.result)
+    end
+end
+
+###
+### Currying
+###
+
+# TODO: Automate currying?
+
+function Try.and_then(f::F) where {F}
+    function and_then_closure(result)
+        Try.and_then(f, result)
+    end
+end
+
+function Try.or_else(f::F) where {F}
+    function or_else_closure(result)
+        Try.or_else(f, result)
+    end
+end
+
+function Try.unwrap_or_else(f::F) where {F}
+    function unwrap_or_else(result)
+        Try.unwrap_or_else(f, result)
     end
 end
