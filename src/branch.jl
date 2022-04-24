@@ -105,6 +105,62 @@ function Try.unwrap_or_else(f, result)
     end
 end
 
+Try.and(result) = result
+
+function Try.and(a, b)
+    br = branch(a)
+    if br isa Break
+        br.result
+    else
+        b
+    end
+end
+
+Try.and(a, b, c, rest...) = Try.and(Try.and(a, b), c, rest...)
+
+Try.or(result) = result
+
+function Try.or(a, b)
+    br = branch(a)
+    if br isa Continue
+        br.result
+    else
+        b
+    end
+end
+
+Try.or(a, b, c, rest...) = Try.or(Try.or(a, b), c, rest...)
+
+macro and(ex, rest...)
+    exprs = map(esc, Any[ex, rest...])
+    foldr(exprs; init = pop!(exprs)) do result, ex
+        br = esc(gensym(:br))
+        quote
+            $br = branch($result)
+            if $br isa Break
+                $br.result
+            else
+                $ex
+            end
+        end
+    end
+end
+
+macro or(ex, rest...)
+    exprs = map(esc, Any[ex, rest...])
+    foldr(exprs; init = pop!(exprs)) do result, ex
+        br = esc(gensym(:br))
+        quote
+            $br = branch($result)
+            if $br isa Continue
+                $br.result
+            else
+                $ex
+            end
+        end
+    end
+end
+
 ###
 ### Currying
 ###

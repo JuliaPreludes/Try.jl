@@ -75,6 +75,28 @@ function test_or_return()
     @test Try.unwrap(try_map_prealloc2(x -> x + 1, 1:3)) == 2:4
 end
 
+function test_and()
+    @test Try.and(Ok(1), Ok(2), Ok(3)) == Try.Ok(3)
+    @test Try.and(Ok(1), Err(2), Ok(3)) == Try.Err(2)
+    @test Try.and(Some(1), Some(2), Some(3)) == Some(3)
+    @test Try.and(Some(1), nothing, Some(3)) === nothing
+    @test Try.@and(Ok(1), Ok(2), Ok(3)) == Try.Ok(3)
+    @test Try.@and(Ok(1), Err(2), Ok(3)) == Try.Err(2)
+    @test Try.@and(Some(1), Some(2), Some(3)) == Some(3)
+    @test Try.@and(Some(1), nothing, Some(3)) === nothing
+end
+
+function test_or()
+    @test Try.or(Err(1), Ok(2), Err(3)) == Try.Ok(2)
+    @test Try.or(Err(1), Err(2), Err(3)) == Try.Err(3)
+    @test Try.or(nothing, Some(2), Some(3)) == Some(2)
+    @test Try.or(nothing, nothing, nothing) === nothing
+    @test Try.@or(Err(1), Ok(2), Err(3)) == Try.Ok(2)
+    @test Try.@or(Err(1), Err(2), Err(3)) == Try.Err(3)
+    @test Try.@or(nothing, Some(2), Some(3)) == Some(2)
+    @test Try.@or(nothing, nothing, nothing) === nothing
+end
+
 function test_unwrap_or_else()
     @test Try.unwrap_or_else(length, Try.Ok(1)) == 1
     @test Try.unwrap_or_else(length, Try.Err("four")) == 4

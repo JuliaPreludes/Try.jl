@@ -37,14 +37,18 @@ end
 macro and_return end
 function var"@?" end
 function var"@return" end
+macro and end
+macro or end
 
+function and end
 function and_then end
+function or end
 function or_else end
 function unwrap_or_else end
 
 module Internal
 
-import ..Try: @and_return, @?
+import ..Try: @and_return, @?, @and, @or
 using ..Try: Err, Ok, Try
 using ..Try.InternalPrelude: AbstractResult, _IsOkError
 

@@ -25,6 +25,10 @@ Try.@and_return
 Try.@return
 Try.or_else
 Try.and_then
+Try.@or
+Try.@and
+Try.or
+Try.and
 ```
 
 See also: [Customizing short-circuit evaluation](@ref customize-short-circuit).
