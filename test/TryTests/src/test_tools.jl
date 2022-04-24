@@ -144,4 +144,11 @@ function test_macro()
     @test demo_macro(1:0) === :oob
 end
 
+function test_map()
+    @test Try.map(x -> x + 1, Ok(1)) == Try.Ok(2)
+    @test Try.map(x -> x + 1, Err(KeyError(:a))) == Err(KeyError(:a))
+    @test Try.map(x -> x + 1, Some(1)) == Some(2)
+    @test Try.map(x -> x + 1, nothing) === nothing
+end
+
 end  # module
