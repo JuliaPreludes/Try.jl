@@ -1,5 +1,6 @@
 module TryTests
 
+include("test_core.jl")
 include("test_base.jl")
 include("test_errortrace.jl")
 include("test_tools.jl")

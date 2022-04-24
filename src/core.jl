@@ -1,3 +1,4 @@
+Try.Ok() = Try.Ok(nothing)
 Try.Ok(::Type{T}) where {T} = Try.Ok{Type{T}}(T)
 
 Try.Err(value) = Try.Err(value, maybe_backtrace())
