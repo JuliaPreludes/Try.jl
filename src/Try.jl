@@ -36,6 +36,7 @@ end
 
 macro and_return end
 function var"@?" end
+function var"@return" end
 
 function and_then end
 function or_else end

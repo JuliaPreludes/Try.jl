@@ -22,6 +22,11 @@ function nitems(xs)
     end |> Try.unwrap
 end
 
+function nitems2(xs)
+    Try.@return trygetlength(xs)
+    count(Returns(true), xs)
+end
+
 function test_and_return()
     @test Try.unwrap(trygetnitems(1:3)) == 3
 
@@ -30,13 +35,16 @@ function test_and_return()
     @test Try.unwrap(trygetnitems(ch)) == 3
 end
 
-function test_or_else()
+function check_nitems(nitems)
     @test nitems(1:3) == 3
 
     ch = foldl(push!, 1:3; init = Channel{Int}(3))
     close(ch)
     @test nitems(ch) == 3
 end
+
+test_or_else() = check_nitems(nitems)
+test_return() = check_nitems(nitems2)
 
 try_map_prealloc(f, xs) =
     Try.and_then(trygetlength(xs)) do n

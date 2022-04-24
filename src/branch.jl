@@ -66,6 +66,18 @@ macro and_return(ex)
     end
 end
 
+const var"@_return" = Try.var"@return"
+macro _return(ex)
+    quote
+        br = branch($(esc(ex)))
+        if br isa Continue
+            return valueof(br)
+        else
+            valueof(br)
+        end
+    end
+end
+
 function Try.and_then(f, result)
     br = branch(result)
     if br isa Continue
