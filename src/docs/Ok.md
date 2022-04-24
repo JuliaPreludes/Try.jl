@@ -1,5 +1,6 @@
     Ok(value::T) -> ok::Ok{T}
     Ok{T}(value) -> ok::Ok{T}
+    Ok() -> Ok(nothing)
 
 Indicate that `value` is a "success" in a sense defined by the API returning this value.
 
