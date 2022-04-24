@@ -34,6 +34,8 @@ struct IsOkError <: InternalPrelude.Exception
     InternalPrelude._IsOkError(ok) = new(ok)
 end
 
+function map end
+
 macro and_return end
 function var"@?" end
 function var"@return" end
@@ -57,6 +59,7 @@ using .ExternalDocstrings: @define_docstrings
 
 include("core.jl")
 include("errortrace.jl")
+include("tools.jl")
 include("branch.jl")
 include("show.jl")
 
