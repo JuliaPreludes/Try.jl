@@ -1,5 +1,8 @@
     Try.@return result
 
+`Return` an unwrapped "success" value or evaluate to an unwrapped "failure" value.
+
+Unlike [`@and_return`](@ref), the values are unwrapped.
 
 | Invocation            | Equivalent code  |
 |:---                   |:---              |

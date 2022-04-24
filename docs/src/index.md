@@ -22,6 +22,7 @@ Try.errtype
 ```@docs
 @?
 Try.@and_return
+Try.@return
 Try.or_else
 Try.and_then
 ```
