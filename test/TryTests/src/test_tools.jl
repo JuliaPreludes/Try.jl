@@ -67,6 +67,11 @@ function test_or_return()
     @test Try.unwrap(try_map_prealloc2(x -> x + 1, 1:3)) == 2:4
 end
 
+function test_unwrap_or_else()
+    @test Try.unwrap_or_else(length, Try.Ok(1)) == 1
+    @test Try.unwrap_or_else(length, Try.Err("four")) == 4
+end
+
 function test_curry()
     value =
         tryconvert(String, 1) |>
