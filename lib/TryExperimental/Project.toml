@@ -1,7 +1,7 @@
 name = "TryExperimental"
 uuid = "ae3b139e-64da-4858-8f55-5617df0d650e"
 authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1-DEV"
 
 [deps]
 Try = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
